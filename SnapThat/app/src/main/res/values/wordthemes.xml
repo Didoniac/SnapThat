@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="office">
+        <item>laptop</item>
+        <item>computer mouse</item>
+        <item>chair</item>
+        <item>backpack</item>
+        <item>radiator</item>
+        <item>projector</item>
+        <item>trash can</item>
+        <item>vase</item>
+        <item>shoe</item>
+        <item>key</item>
+    </string-array>
+</resources>
