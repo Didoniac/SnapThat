@@ -14,13 +14,37 @@ import android.widget.TextView;
 public class MainMenuFragment extends Fragment {
 
     private TextView signedInOrOutTextView;
-    private Button newGameButton;
+    private Button quickGameButton, invitePlayersButton, showInvitationsButton;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.mainmenufragment_layout,container,false);
+        final MainActivity mainActivity = (MainActivity) getActivity();
 
         signedInOrOutTextView = (TextView) rootView.findViewById(R.id.signedInOrOutTextView);
-        newGameButton = (Button) rootView.findViewById(R.id.newGameButton);
+        quickGameButton = (Button) rootView.findViewById(R.id.quickGameButton);
+        invitePlayersButton = (Button) rootView.findViewById(R.id.invitePlayersButton);
+        showInvitationsButton = (Button) rootView.findViewById(R.id.showInvitationsButton);
+
+        quickGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainActivity.startQuickGame();
+            }
+        });
+
+        invitePlayersButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainActivity.invitePlayers();
+            }
+        });
+
+        showInvitationsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainActivity.showInvitations();
+            }
+        });
 
         return rootView;
     }
@@ -29,9 +53,11 @@ public class MainMenuFragment extends Fragment {
         signedInOrOutTextView.setText(string);
     }
 
-    public void setNewGameButtonClickable(boolean clickable) {
+    public void setNewGameButtonsClickable(boolean clickable) {
         try {
-            newGameButton.setClickable(clickable);
+            quickGameButton.setClickable(clickable);
+            invitePlayersButton.setClickable(clickable);
+            showInvitationsButton.setClickable(clickable);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
