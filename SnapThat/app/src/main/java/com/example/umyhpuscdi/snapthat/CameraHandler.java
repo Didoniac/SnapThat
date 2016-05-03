@@ -84,10 +84,15 @@ public class CameraHandler {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = inSampleSize;
 
-        Bundle bundle = pictureFileIntent.getExtras();
-        Uri pictureFileUri = (Uri) bundle.get(MediaStore.EXTRA_OUTPUT);
+
+        Uri pictureFileUri = (Uri) getFilePathFromIntent(pictureFileIntent);
         Bitmap bitmap = BitmapFactory.decodeFile(pictureFileUri.getPath(), options);
         return bitmap;
+    }
+
+    public static Uri getFilePathFromIntent(Intent pictureFileIntent){
+        Bundle bundle = pictureFileIntent.getExtras();
+        return (Uri) bundle.get(MediaStore.EXTRA_OUTPUT);
     }
 }
 

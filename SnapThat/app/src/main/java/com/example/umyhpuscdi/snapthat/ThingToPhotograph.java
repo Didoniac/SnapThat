@@ -11,8 +11,13 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -76,6 +81,7 @@ public class ThingToPhotograph{
     }
 
     private void onPostExecuteUploadAndCheck(String jsonString){
+        Log.i("HTTP SHIT", jsonString);
         if(doesJsonContainWord(jsonString)){
             accepted = true;
         }else {
@@ -91,18 +97,67 @@ public class ThingToPhotograph{
     private class PicToWordAsyncTask extends AsyncTask<File, Void, String>{
 
         private static final String API_URL = "https://quasiris-image-recognition-automatic-picture-labeling-v1.p.mashape.com/classify_upload?plain=1";
+        URL url;
+        HttpURLConnection connection;
 
         @Override
         protected String doInBackground(File... params) {
-            try {
-                HttpResponse<JsonNode> response = Unirest.post(API_URL)
-                        .header("X-Mashape-Key", "aTaq4JgPedmshFlJznk83KutM6hWp1mPGnejsn8lEIHLCFHR6q")
-                        .field("imagefile", params[0])
-                        .asJson();
-                return response.toString();
-            } catch (UnirestException e) {
+            //Create URL
+            try{
+                url = new URL(API_URL);
+            } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
+
+            //Create Connection
+            try {
+                connection = (HttpURLConnection) url.openConnection();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //Setup request
+            try {
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+                //change to send a picture-file
+                //connection.setRequestProperty("Content-type", "application/json");
+                connection.setRequestProperty("Accept", "application/json");
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            }
+
+            //Upload
+            try {
+                connection.connect();
+
+                OutputStream outStream = connection.getOutputStream();
+                OutputStreamWriter outStreamWriter = new OutputStreamWriter(outStream, "UTF-8");
+                BufferedWriter buffWriter = new BufferedWriter(outStreamWriter);
+
+                buffWriter.write(params[2]);
+                buffWriter.flush();
+                buffWriter.close();
+
+                outStream.close();
+
+                InputStreamReader input = new InputStreamReader(connection.getInputStream());
+                BufferedReader buffR = new BufferedReader(input);
+                String inputLine;
+                StringBuffer strBuff = new StringBuffer();
+
+                while((inputLine = buffR.readLine()) != null){
+                    strBuff.append(inputLine);
+                }
+                buffR.close();
+
+                jsonReturnString = strBuff.toString();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             return null;
         }
 
