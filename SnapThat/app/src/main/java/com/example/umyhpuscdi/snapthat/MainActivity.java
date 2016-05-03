@@ -490,7 +490,7 @@ public class MainActivity
         String s = "" + value;
         chooseThemeFragment.getAddValueButton().setText(s);
 
-        //Make a byte[] out of whatever you want to send.
+        //Make a byte[] out of the int to be sent.
         byte[] message = ByteBuffer.allocate(4).putInt(value).array();
 
         // broadcast the new value to the other players.
