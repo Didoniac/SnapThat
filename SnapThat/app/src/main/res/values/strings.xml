@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">SnapThat</string>
+    <string name="quick_game">Quick game</string>
+    <string name="quit">Quit</string>
+    <string name="signed_in">Signed in.</string>
+    <string name="signed_out">Signed out.</string>
+    <string name="invite_players">Invite players</string>
+    <string name="show_invitations">Show Invitations</string>
+    <string name="zero">0</string>
 </resources>
