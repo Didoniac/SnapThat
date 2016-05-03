@@ -136,7 +136,7 @@ public class ThingToPhotograph{
                 OutputStreamWriter outStreamWriter = new OutputStreamWriter(outStream, "UTF-8");
                 BufferedWriter buffWriter = new BufferedWriter(outStreamWriter);
 
-                buffWriter.write(params[2]);
+                buffWriter.write(params[0]);
                 buffWriter.flush();
                 buffWriter.close();
 
@@ -152,7 +152,7 @@ public class ThingToPhotograph{
                 }
                 buffR.close();
 
-                jsonReturnString = strBuff.toString();
+                return strBuff.toString();
 
             } catch (IOException e) {
                 e.printStackTrace();
