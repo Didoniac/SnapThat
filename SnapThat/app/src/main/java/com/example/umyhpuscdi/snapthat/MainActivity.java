@@ -107,14 +107,16 @@ public class MainActivity
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d("TAG", "onStart(): connecting");
+        if (!googleApiClient.isConnected()) {
+            Log.d("TAG", "onStart(): connecting");
         googleApiClient.connect();
+        }
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d("TAG", "onStop(): disconnecting");
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("TAG", "onDestroy(): disconnecting");
         if (googleApiClient.isConnected()) {
             googleApiClient.disconnect();
         }
@@ -208,7 +210,7 @@ public class MainActivity
             getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
                     chooseThemeFragment).commit();
         }else if(requestCode == IMG_TAKEN_CODE){
-            if (resultCode != Activity.RESULT_OK) {
+            if (resultCode != Activity.RESULT_OK || !isSignedIn()) {
                 // canceled
                 return;
             }
@@ -216,6 +218,7 @@ public class MainActivity
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             byte[] message = stream.toByteArray();
             sendReliableMessage(googleApiClient, null, message, null, null);
+            chooseThemeFragment.setImageTest(bitmap);
         }
     }
 
