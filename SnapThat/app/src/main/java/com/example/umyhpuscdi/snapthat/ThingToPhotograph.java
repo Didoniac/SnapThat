@@ -102,6 +102,9 @@ public class ThingToPhotograph{
 
         @Override
         protected String doInBackground(File... params) {
+
+            HttpClient
+
             //Create URL
             try{
                 url = new URL(API_URL);
