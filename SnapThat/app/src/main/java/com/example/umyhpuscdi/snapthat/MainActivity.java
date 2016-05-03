@@ -413,7 +413,9 @@ public class MainActivity
         byte[] b = realTimeMessage.getMessageData();
 
         // process message
-        chooseThemeFragment.getAddValueButton().setText(byteArrayToInt(b));
+        value = byteArrayToInt(b);
+        String s = "" + value;
+        chooseThemeFragment.getAddValueButton().setText(s);
     }
 
     public static int byteArrayToInt(byte[] b) {
