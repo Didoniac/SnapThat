@@ -21,7 +21,6 @@ public class ChooseThemeFragment extends Fragment {
         final MainActivity mainActivity = (MainActivity) getActivity();
 
         addValueButton = (Button) rootView.findViewById(R.id.addValueButton);
-        addValueButton.setText(mainActivity.getValue());
 
         addValueButton.setOnClickListener(new View.OnClickListener() {
             @Override

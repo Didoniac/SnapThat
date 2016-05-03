@@ -160,6 +160,11 @@ public class MainActivity
 
             otherPlayerIds = invitees;
 
+            // go to game screen
+            chooseThemeFragment = new ChooseThemeFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
+                    chooseThemeFragment).commit();
+
         } else if (requestCode == RC_INVITATION_INBOX) {
             if (resultCode != Activity.RESULT_OK) {
                 // canceled
@@ -321,10 +326,10 @@ public class MainActivity
     }
 
     @Override
-    public int sendReliableMessage(GoogleApiClient googleApiClient, ReliableMessageSentCallback reliableMessageSentCallback, byte[] bytes, String s, String s1) {
+    public int sendReliableMessage(GoogleApiClient googleApiClient,
+                                   ReliableMessageSentCallback reliableMessageSentCallback,
+                                   byte[] message, String roomId, String participantId) {
 
-        //Make a byte[] out of whatever you want to send.
-        byte[] message = ByteBuffer.allocate(4).putInt(value).array();
         for (Participant p : room.getParticipants()) {
             //Send the byte[] message to everyone except yourself.
             if (!p.getParticipantId().equals(player.getPlayerId())) {
@@ -364,7 +369,7 @@ public class MainActivity
     public void startQuickGame() {
         // auto-match criteria to invite one random automatch opponent.
         // You can also specify more opponents (up to 3).
-        Bundle am = RoomConfig.createAutoMatchCriteria(MIN_PLAYERS, MAX_PLAYERS - 1, 0);
+        Bundle am = RoomConfig.createAutoMatchCriteria(MIN_PLAYERS - 1, MAX_PLAYERS - 1, 0);
 
         // build the room config:
         RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder();
@@ -378,12 +383,15 @@ public class MainActivity
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // go to game screen
+        chooseThemeFragment = new ChooseThemeFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
+                chooseThemeFragment).commit();
     }
 
     public void invitePlayers() {
         // launch the player selection screen
         // minimum: 1 other player; maximum: 3 other players
-        Intent intent = Games.RealTimeMultiplayer.getSelectOpponentsIntent(googleApiClient, MIN_PLAYERS, MAX_PLAYERS - 1);
+        Intent intent = Games.RealTimeMultiplayer.getSelectOpponentsIntent(googleApiClient, MIN_PLAYERS - 1, MAX_PLAYERS - 1);
         startActivityForResult(intent, RC_SELECT_PLAYERS);
     }
 
@@ -479,9 +487,14 @@ public class MainActivity
 
     public void addValueAndSendToOthers() {
         value++;
-        chooseThemeFragment.getAddValueButton().setText(value);
+        String s = "" + value;
+        chooseThemeFragment.getAddValueButton().setText(s);
 
-        //TODO broadcast the new value to the other players.
+        //Make a byte[] out of whatever you want to send.
+        byte[] message = ByteBuffer.allocate(4).putInt(value).array();
+
+        // broadcast the new value to the other players.
+        sendReliableMessage(googleApiClient, null, message, null, null);
     }
 
     public int getValue() {
