@@ -17,6 +17,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    signingConfigs {
+        debug {
+            storeFile file(project.property("SnapThat.signing"))
+            storePassword project.property("SnapThat.signing.password")
+            keyAlias project.property("SnapThat.signing.alias")
+            keyPassword project.property("SnapThat.signing.password")
+        }
+    }
 }
 
 dependencies {

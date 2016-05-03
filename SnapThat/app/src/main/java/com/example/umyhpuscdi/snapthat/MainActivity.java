@@ -93,7 +93,7 @@ public class MainActivity
         } else {
             displayName = p.getDisplayName();
         }
-        Toast.makeText(MainActivity.this, "Hello " + displayName, Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Welcome " + displayName + "!", Toast.LENGTH_SHORT).show();
         mainMenuFragment.setGreeting(getString(R.string.signed_in));
         mainMenuFragment.setNewGameButtonClickable(true);
     }
