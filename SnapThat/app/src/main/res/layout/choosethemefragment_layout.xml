@@ -11,4 +11,10 @@
         android:text="@string/zero"
         android:id="@+id/addValueButton"/>
 
+    <ImageView
+        android:background="@mipmap/ic_launcher"
+        android:id="@+id/TEST_IMAGEVIEW"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>

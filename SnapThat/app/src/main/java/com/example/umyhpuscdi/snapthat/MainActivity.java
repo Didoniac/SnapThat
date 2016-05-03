@@ -3,11 +3,15 @@ package com.example.umyhpuscdi.snapthat;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -26,6 +30,8 @@ import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +48,9 @@ public class MainActivity
     private MainMenuFragment mainMenuFragment;
     private ChooseThemeFragment chooseThemeFragment;
     private GoogleApiClient googleApiClient;
+
+    //Photo
+    private static final int IMG_TAKEN_CODE = 100;
 
     // request codes we use when invoking an external activity
     private static final int RC_RESOLVE = 5000;
@@ -69,6 +78,9 @@ public class MainActivity
     private Room room;
 
     private int value = 0;
+
+    //Photo
+    private Intent latestPicIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,6 +207,15 @@ public class MainActivity
             chooseThemeFragment = new ChooseThemeFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
                     chooseThemeFragment).commit();
+        }else if(requestCode == IMG_TAKEN_CODE){
+            if (resultCode != Activity.RESULT_OK) {
+                // canceled
+                return;
+            }
+            Bitmap bitmap = CameraHandler.getBitmap(latestPicIntent, 4);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            byte[] message = stream.toByteArray();
+            sendReliableMessage(googleApiClient, null, message, null, null);
         }
     }
 
@@ -413,9 +434,14 @@ public class MainActivity
         byte[] b = realTimeMessage.getMessageData();
 
         // process message
+        Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
+        chooseThemeFragment.setImageTest(bitmap);
+
+        /*Old testing of sending integers
         value = byteArrayToInt(b);
         String s = "" + value;
         chooseThemeFragment.getAddValueButton().setText(s);
+        */
     }
 
     public static int byteArrayToInt(byte[] b) {
@@ -501,5 +527,10 @@ public class MainActivity
 
     public int getValue() {
         return value;
+    }
+
+    public void photoAndSend() {
+        latestPicIntent = CameraHandler.getPictureFileIntent(this, "SnapThat");
+        startActivityForResult(latestPicIntent, IMG_TAKEN_CODE);
     }
 }
