@@ -50,7 +50,7 @@ public class MainMenuFragment extends Fragment {
         quitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                mainActivity.finish();
             }
         });
 

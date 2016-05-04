@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,7 @@ import android.widget.ImageView;
  */
 public class ChooseThemeFragment extends Fragment {
 
-    private Button addValueButton;
+    private Button defaultThemeButton;
     ImageView imgV;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
@@ -24,13 +25,21 @@ public class ChooseThemeFragment extends Fragment {
 
         final MainActivity mainActivity = (MainActivity) getActivity();
 
-        addValueButton = (Button) rootView.findViewById(R.id.addValueButton);
+        defaultThemeButton = (Button) rootView.findViewById(R.id.defaultThemeButton);
         imgV = (ImageView)rootView.findViewById(R.id.TEST_IMAGEVIEW);
 
-        addValueButton.setOnClickListener(new View.OnClickListener() {
+        defaultThemeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.photoAndSend();
+
+                ChooseThemeFragment chooseThemeFragment = new ChooseThemeFragment();
+                FragmentTransaction fragmentTransaction =
+                        mainActivity.getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.replace(R.id.mainLayout, chooseThemeFragment).commit();
+
+                // Gammal testning
+                // mainActivity.photoAndSend();
             }
         });
 
@@ -41,7 +50,7 @@ public class ChooseThemeFragment extends Fragment {
         imgV.setImageBitmap(bitmap);
     }
 
-    public Button getAddValueButton() {
-        return addValueButton;
+    public Button getDefaultThemeButton() {
+        return defaultThemeButton;
     }
 }

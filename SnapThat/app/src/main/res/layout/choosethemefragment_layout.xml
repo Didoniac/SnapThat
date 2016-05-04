@@ -8,8 +8,8 @@
     <Button
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:text="@string/zero"
-        android:id="@+id/addValueButton"/>
+        android:text="@string/default_theme"
+        android:id="@+id/defaultThemeButton"/>
 
     <ImageView
         android:src="@mipmap/ic_launcher"

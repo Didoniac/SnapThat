@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -207,9 +208,10 @@ public class MainActivity
 
             // go to game screen
             chooseThemeFragment = new ChooseThemeFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
-                    chooseThemeFragment).commit();
-        }else if(requestCode == IMG_TAKEN_CODE){
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.mainLayout, chooseThemeFragment).commit();
+
+        } else if(requestCode == IMG_TAKEN_CODE){
             if (resultCode != Activity.RESULT_OK || !isSignedIn()) {
                 // canceled
                 return;
@@ -521,7 +523,7 @@ public class MainActivity
     public void addValueAndSendToOthers() {
         value++;
         String s = "" + value;
-        chooseThemeFragment.getAddValueButton().setText(s);
+        chooseThemeFragment.getDefaultThemeButton().setText(s);
 
         //Make a byte[] out of the int to be sent.
         byte[] message = ByteBuffer.allocate(4).putInt(value).array();
