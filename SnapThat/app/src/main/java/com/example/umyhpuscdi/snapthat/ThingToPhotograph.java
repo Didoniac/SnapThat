@@ -34,7 +34,11 @@ public class ThingToPhotograph{
     private boolean isPhotographed = false;
     private boolean uploadedAndChecked = false;
     private boolean accepted = false;
-    private String mFilePath;
+    private Uri mFilePath;
+
+    public String getmName() {
+        return mName;
+    }
 
     public ThingToPhotograph(String name){
         mName = name;
@@ -52,12 +56,12 @@ public class ThingToPhotograph{
         return accepted;
     }
 
-    public String getmFilePath() {
+    public Uri getmFilePath() {
         return mFilePath;
     }
 
-    public void setmFilePath(String mFilePath) {
-        this.mFilePath = mFilePath;
+    public void setmFilePath(Uri filePath) {
+        this.mFilePath = filePath;
         isPhotographed = true;
     }
 
@@ -78,11 +82,16 @@ public class ThingToPhotograph{
     }
 
     public File getFile(){
-        return new File(mFilePath);
+        return new File(mFilePath.getPath());
     }
 
     public Bitmap getBitmap(){
-        Bitmap bitmap = BitmapFactory.decodeFile(mFilePath);
+
+        //TODO set inSamplesize to be dynamic
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 4;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(mFilePath.getPath(), options);
         return bitmap;
     }
 
@@ -144,10 +153,23 @@ public class ThingToPhotograph{
                 params[0].compress(Bitmap.CompressFormat.JPEG, 50, outStream);
                 outStream.close();
 
+                /*
                 Scanner result = new Scanner(connection.getInputStream());
                 String response = result.nextLine();
-                Log.e("ImageUploader", "Error uploading image: " +response);
+                Log.i("ImageUploader", "Error uploading image: " +response);
                 result.close();
+                */
+
+                InputStreamReader input = new InputStreamReader(connection.getInputStream());
+                BufferedReader buffr = new BufferedReader(input);
+
+                String inputLine;
+                StringBuffer strBuffr = new StringBuffer();
+                while((inputLine = buffr.readLine()) != null){
+                    strBuffr.append(inputLine);
+                }
+                buffr.close();
+                String response = strBuffr.toString();
 
                 return response;
 

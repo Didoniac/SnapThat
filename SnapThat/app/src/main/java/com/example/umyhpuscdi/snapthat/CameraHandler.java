@@ -84,7 +84,6 @@ public class CameraHandler {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = inSampleSize;
 
-
         Uri pictureFileUri = (Uri) getFilePathFromIntent(pictureFileIntent);
         Bitmap bitmap = BitmapFactory.decodeFile(pictureFileUri.getPath(), options);
         return bitmap;

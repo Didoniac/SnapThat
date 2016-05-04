@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void APIMagicToTextView() {
         ThingToPhotograph photo = new ThingToPhotograph("chair");
-        photo.setmFilePath(CameraHandler.getFilePathFromIntent(pictureIntent).toString());
+        photo.setmFilePath(CameraHandler.getFilePathFromIntent(pictureIntent));
         photo.uploadAndCheck();
     }
 }
