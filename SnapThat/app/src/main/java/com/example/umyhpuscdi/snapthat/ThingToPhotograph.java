@@ -103,8 +103,6 @@ public class ThingToPhotograph{
         @Override
         protected String doInBackground(File... params) {
 
-            HttpClient
-
             //Create URL
             try{
                 url = new URL(API_URL);
@@ -139,6 +137,23 @@ public class ThingToPhotograph{
                 OutputStreamWriter outStreamWriter = new OutputStreamWriter(outStream, "UTF-8");
                 BufferedWriter buffWriter = new BufferedWriter(outStreamWriter);
 
+                //TODO
+                //http://developer.android.com/reference/java/net/HttpURLConnection.html
+                /*
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+               try {
+                 urlConnection.setDoOutput(true);
+                 urlConnection.setChunkedStreamingMode(0);
+
+                 OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+                 writeStream(out);
+
+                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                 readStream(in);
+                finally {
+                 urlConnection.disconnect();
+               }
+                 */
                 buffWriter.write(params[0]);
                 buffWriter.flush();
                 buffWriter.close();
