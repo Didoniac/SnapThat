@@ -215,7 +215,9 @@ public class MainActivity
                 return;
             }
             Bitmap bitmap = CameraHandler.getBitmap(latestPicIntent, 4);
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            ByteArrayOutputStream stream =
+                    new ByteArrayOutputStream(bitmap.getWidth() * bitmap.getHeight());
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream);
             byte[] message = stream.toByteArray();
             sendReliableMessage(googleApiClient, null, message, null, null);
             chooseThemeFragment.setImageTest(bitmap);
@@ -304,7 +306,7 @@ public class MainActivity
 
     @Override
     public void onLeftRoom(int i, String s) {
-        room = null;
+    //    room = null;
     }
 
     @Override

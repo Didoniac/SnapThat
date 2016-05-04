@@ -37,7 +37,7 @@ public class ChooseThemeFragment extends Fragment {
         return rootView;
     }
 
-    public void setImageTest(Bitmap bitmap){
+    public void setImageTest(Bitmap bitmap) {
         imgV.setImageBitmap(bitmap);
     }
 

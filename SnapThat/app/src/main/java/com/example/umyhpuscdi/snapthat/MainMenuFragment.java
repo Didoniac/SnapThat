@@ -14,7 +14,7 @@ import android.widget.TextView;
 public class MainMenuFragment extends Fragment {
 
     private TextView signedInOrOutTextView;
-    private Button quickGameButton, invitePlayersButton, showInvitationsButton;
+    private Button quickGameButton, invitePlayersButton, showInvitationsButton, quitButton;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.mainmenufragment_layout,container,false);
@@ -24,6 +24,7 @@ public class MainMenuFragment extends Fragment {
         quickGameButton = (Button) rootView.findViewById(R.id.quickGameButton);
         invitePlayersButton = (Button) rootView.findViewById(R.id.invitePlayersButton);
         showInvitationsButton = (Button) rootView.findViewById(R.id.showInvitationsButton);
+        quitButton = (Button) rootView.findViewById(R.id.quitButton);
 
         quickGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,6 +44,13 @@ public class MainMenuFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mainActivity.showInvitations();
+            }
+        });
+
+        quitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
 
