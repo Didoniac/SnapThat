@@ -29,6 +29,8 @@ import java.util.Scanner;
  */
 public class ThingToPhotograph{
 
+    private static final String X_MASHAPE_KEY = "J5ykIANsTimshEs1KFCqdavnWsDPp1vY2ILjsn26bsA9ElIZJw";
+
     private String mName;
 
     private boolean isPhotographed = false;
@@ -141,6 +143,8 @@ public class ThingToPhotograph{
                 //change to send a picture-file
                 //connection.setRequestProperty("Content-type", "application/json");
                 connection.setRequestProperty("Accept", "application/json");
+                connection.setRequestProperty("X-Mashape-Key", "J5ykIANsTimshEs1KFCqdavnWsDPp1vY2ILjsn26bsA9ElIZJw");
+
             } catch (ProtocolException e) {
                 e.printStackTrace();
             }
@@ -149,9 +153,17 @@ public class ThingToPhotograph{
             try {
                 connection.connect();
 
+                /*
                 OutputStream outStream = connection.getOutputStream();
                 params[0].compress(Bitmap.CompressFormat.JPEG, 50, outStream);
                 outStream.close();
+                */
+
+                OutputStream outputStream = connection.getOutputStream();
+                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+                BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+
+                bufferedWriter.write();
 
                 /*
                 Scanner result = new Scanner(connection.getInputStream());
