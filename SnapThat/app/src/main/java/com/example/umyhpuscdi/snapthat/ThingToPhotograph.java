@@ -22,6 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Scanner;
 
 /**
  * Created by umyhblomti on 2016-05-02.
@@ -70,7 +71,7 @@ public class ThingToPhotograph{
     public void uploadAndCheck(){
         if(isPhotographed) {
             PicToWordAsyncTask asyncTask = new PicToWordAsyncTask();
-            asyncTask.execute(getFile());
+            asyncTask.execute(getBitmap());
         }else {
             Log.i("ThingToPhotograph", "picture hasn't been taken yet, supply a filepath with setmFilePath");
         }
@@ -78,6 +79,11 @@ public class ThingToPhotograph{
 
     public File getFile(){
         return new File(mFilePath);
+    }
+
+    public Bitmap getBitmap(){
+        Bitmap bitmap = BitmapFactory.decodeFile(mFilePath);
+        return bitmap;
     }
 
     private void onPostExecuteUploadAndCheck(String jsonString){
@@ -94,14 +100,14 @@ public class ThingToPhotograph{
         return true;
     }
 
-    private class PicToWordAsyncTask extends AsyncTask<File, Void, String>{
+    private class PicToWordAsyncTask extends AsyncTask<Bitmap, Void, String>{
 
         private static final String API_URL = "https://quasiris-image-recognition-automatic-picture-labeling-v1.p.mashape.com/classify_upload?plain=1";
         URL url;
         HttpURLConnection connection;
 
         @Override
-        protected String doInBackground(File... params) {
+        protected String doInBackground(Bitmap... params) {
 
             //Create URL
             try{
@@ -121,6 +127,7 @@ public class ThingToPhotograph{
             try {
                 connection.setRequestMethod("POST");
                 connection.setDoOutput(true);
+                connection.setChunkedStreamingMode(0);
                 connection.setDoInput(true);
                 //change to send a picture-file
                 //connection.setRequestProperty("Content-type", "application/json");
@@ -134,43 +141,15 @@ public class ThingToPhotograph{
                 connection.connect();
 
                 OutputStream outStream = connection.getOutputStream();
-                OutputStreamWriter outStreamWriter = new OutputStreamWriter(outStream, "UTF-8");
-                BufferedWriter buffWriter = new BufferedWriter(outStreamWriter);
-
-                //TODO
-                //http://developer.android.com/reference/java/net/HttpURLConnection.html
-                /*
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-               try {
-                 urlConnection.setDoOutput(true);
-                 urlConnection.setChunkedStreamingMode(0);
-
-                 OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                 writeStream(out);
-
-                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                 readStream(in);
-                finally {
-                 urlConnection.disconnect();
-               }
-                 */
-                buffWriter.write(params[0]);
-                buffWriter.flush();
-                buffWriter.close();
-
+                params[0].compress(Bitmap.CompressFormat.JPEG, 50, outStream);
                 outStream.close();
 
-                InputStreamReader input = new InputStreamReader(connection.getInputStream());
-                BufferedReader buffR = new BufferedReader(input);
-                String inputLine;
-                StringBuffer strBuff = new StringBuffer();
+                Scanner result = new Scanner(connection.getInputStream());
+                String response = result.nextLine();
+                Log.e("ImageUploader", "Error uploading image: " +response);
+                result.close();
 
-                while((inputLine = buffR.readLine()) != null){
-                    strBuff.append(inputLine);
-                }
-                buffR.close();
-
-                return strBuff.toString();
+                return response;
 
             } catch (IOException e) {
                 e.printStackTrace();
