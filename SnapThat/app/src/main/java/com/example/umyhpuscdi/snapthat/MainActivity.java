@@ -50,6 +50,8 @@ public class MainActivity
 
     private MainMenuFragment mainMenuFragment;
     private ChooseThemeFragment chooseThemeFragment;
+    private WordSnapFragment wordSnapFragment;
+
     private GoogleApiClient googleApiClient;
 
     //Photo
@@ -229,6 +231,7 @@ public class MainActivity
             byte[] message = stream.toByteArray();
             sendReliableMessage(googleApiClient, null, message, null, null);
             chooseThemeFragment.setImageTest(bitmap);
+            wordSnapFragment.showNextWord();
         }
     }
 
@@ -545,5 +548,9 @@ public class MainActivity
     public void photoAndSend() {
         latestPicIntent = CameraHandler.getPictureFileIntent(this, "SnapThat");
         startActivityForResult(latestPicIntent, IMG_TAKEN_CODE);
+    }
+
+    public void setWordSnapFragment(WordSnapFragment wordSnapFragment) {
+        this.wordSnapFragment = wordSnapFragment;
     }
 }

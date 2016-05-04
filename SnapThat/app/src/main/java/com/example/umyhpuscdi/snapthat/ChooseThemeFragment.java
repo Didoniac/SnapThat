@@ -32,11 +32,12 @@ public class ChooseThemeFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                ChooseThemeFragment chooseThemeFragment = new ChooseThemeFragment();
+                WordSnapFragment wordSnapFragment = new WordSnapFragment();
+                mainActivity.setWordSnapFragment(wordSnapFragment);
                 FragmentTransaction fragmentTransaction =
                         mainActivity.getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.replace(R.id.mainLayout, chooseThemeFragment).commit();
+                fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
 
                 // Gammal testning
                 // mainActivity.photoAndSend();
