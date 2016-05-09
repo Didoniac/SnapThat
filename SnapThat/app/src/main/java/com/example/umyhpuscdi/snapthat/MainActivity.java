@@ -217,6 +217,7 @@ public class MainActivity
             // go to game screen
             chooseThemeFragment = new ChooseThemeFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.replace(R.id.mainLayout, chooseThemeFragment).commit();
 
         } else if(requestCode == IMG_TAKEN_CODE){
@@ -421,8 +422,9 @@ public class MainActivity
 
         // go to game screen
         chooseThemeFragment = new ChooseThemeFragment();
-        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
-                chooseThemeFragment).commit();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.replace(R.id.mainLayout, chooseThemeFragment).commit();
     }
 
     public void invitePlayers() {

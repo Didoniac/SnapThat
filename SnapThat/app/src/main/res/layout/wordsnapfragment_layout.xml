@@ -9,6 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
+        android:gravity="center_horizontal"
         android:text="@string/time_left"
         android:id="@+id/timeLeftTextView"/>
 

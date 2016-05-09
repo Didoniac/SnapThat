@@ -7,7 +7,7 @@
     <string name="invite_players">Invite players</string>
     <string name="show_invitations">Show Invitations</string>
     <string name="default_theme">Default theme</string>
-    <string name="time_left">Time left:\n00:00:00</string>
+    <string name="time_left">Time left:\n</string>
     <string name="skip">Skip</string>
     <string name="snap_it">Snap it!</string>
 </resources>
