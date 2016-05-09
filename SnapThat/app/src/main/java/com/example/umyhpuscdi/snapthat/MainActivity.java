@@ -5,16 +5,12 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -33,7 +29,6 @@ import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -51,6 +46,7 @@ public class MainActivity
     private MainMenuFragment mainMenuFragment;
     private ChooseThemeFragment chooseThemeFragment;
     private WordSnapFragment wordSnapFragment;
+    private NewGameMenuFragment newGameMenuFragment;
 
     private GoogleApiClient googleApiClient;
 
@@ -78,8 +74,13 @@ public class MainActivity
 
     // are we already playing?
     private boolean playing = false;
+
+    //The user
     private Player player;
-    private ArrayList<String> otherPlayerIds;
+
+    //All players in the room
+    private ArrayList<com.example.umyhpuscdi.snapthat.Player> players = new ArrayList<>();
+
     private Room room;
 
     private int value = 0;
@@ -181,12 +182,10 @@ public class MainActivity
             Toast.makeText(MainActivity.this, "Invited " + invitees.size() + " player(s).",
                     Toast.LENGTH_SHORT).show();
 
-            otherPlayerIds = invitees;
-
             // go to game screen
-            chooseThemeFragment = new ChooseThemeFragment();
+            newGameMenuFragment = new NewGameMenuFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
-                    chooseThemeFragment).commit();
+                    newGameMenuFragment).commit();
 
         } else if (requestCode == RC_INVITATION_INBOX) {
             if (resultCode != Activity.RESULT_OK) {
@@ -297,8 +296,9 @@ public class MainActivity
             // let screen go to sleep
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-            //TODO show error message, return to main screen.
-
+            //show error message, return to main screen.
+            Toast.makeText(MainActivity.this, "Error in onRoomCreated!", Toast.LENGTH_SHORT).show();
+            onBackPressed();
         }
     }
 
@@ -312,7 +312,9 @@ public class MainActivity
             // let screen go to sleep
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-            //TODO show error message, return to main screen.
+            //show error message, return to main screen.
+            Toast.makeText(MainActivity.this, "Error in onJoinedRoom!", Toast.LENGTH_SHORT).show();
+            onBackPressed();
         }
     }
 
@@ -329,7 +331,9 @@ public class MainActivity
             // let screen go to sleep
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-            //TODO show error message, return to main screen.
+            //show error message, return to main screen.
+            Toast.makeText(MainActivity.this, "Error in onRoomConnected!", Toast.LENGTH_SHORT).show();
+            onBackPressed();
         }
     }
 
@@ -421,10 +425,10 @@ public class MainActivity
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // go to game screen
-        chooseThemeFragment = new ChooseThemeFragment();
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.replace(R.id.mainLayout, chooseThemeFragment).commit();
+        newGameMenuFragment = new NewGameMenuFragment();
+        fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
     }
 
     public void invitePlayers() {
@@ -470,6 +474,24 @@ public class MainActivity
         }
         return value;
     }
+
+    // returns whether there are enough players to start the game
+    public boolean shouldStartGame() {
+        int connectedPlayers = 0;
+        for (Participant p : room.getParticipants()) {
+            if (p.isConnectedToRoom()) ++connectedPlayers;
+        }
+        return connectedPlayers >= MIN_PLAYERS;
+    }
+
+    // Returns whether the room is in a state where the game should be canceled.
+/*    public boolean shouldCancelGame(Room room) {
+        // TODO: Your game-specific cancellation logic here. For example, you might decide to
+        // cancel the game if enough people have declined the invitation or left the room.
+        // You can check a participant's status with Participant.getStatus().
+        // (Also, your UI should have a Cancel button that cancels the game too)
+    }
+*/
 
     @Override
     public void onRoomConnecting(Room room) {
@@ -554,5 +576,9 @@ public class MainActivity
 
     public void setWordSnapFragment(WordSnapFragment wordSnapFragment) {
         this.wordSnapFragment = wordSnapFragment;
+    }
+
+    public ArrayList<com.example.umyhpuscdi.snapthat.Player> getPlayers() {
+        return players;
     }
 }

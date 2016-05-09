@@ -10,4 +10,8 @@
     <string name="time_left">Time left:\n</string>
     <string name="skip">Skip</string>
     <string name="snap_it">Snap it!</string>
+    <string name="theme">Theme</string>
+    <string name="ready">Ready</string>
+    <string name="go">Go!</string>
+    <string name="username"><![CDATA[<Username>]]></string>
 </resources>

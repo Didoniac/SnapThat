@@ -25,6 +25,7 @@ public class WordSnapFragment extends Fragment {
     private ArrayList<ThingToPhotograph> thingsToPhotograph = new ArrayList<>();
     private MainActivity mainActivity;
     private Toast toast;
+    private CountDownTimer timer;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.wordsnapfragment_layout, container, false);
@@ -68,40 +69,48 @@ public class WordSnapFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //120000 = 2 minuters timer. Andra parametern (1000) gör så att det dröjer 1 sekund mellan varje onTick.
-        CountDownTimer timer = new CountDownTimer(120000, 1000) {
+        timer = new CountDownTimer(120000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                String tempTimeLeftString = getString(R.string.time_left);
-                final String timeLeftString = String.format(getResources().getConfiguration().locale,
-                        tempTimeLeftString
-                                + "%02d:%02d",
-                        TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
-                        TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished)
-                                - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished)));
+                try {
+                    String tempTimeLeftString = getString(R.string.time_left);
+                    final String timeLeftString = String.format(getResources().getConfiguration().locale,
+                            tempTimeLeftString
+                                    + "%02d:%02d",
+                            TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished),
+                            TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished)
+                                    - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished)));
 
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run() {
-                        timeLeftTextView.setText(timeLeftString);
-                    }
-                });
+                    getActivity().runOnUiThread(new Runnable() {
+                        public void run() {
+                            timeLeftTextView.setText(timeLeftString);
+                        }
+                    });
 
-                if (millisUntilFinished <= 10000) {
-                    if (toast != null) {
-                        toast.cancel();
+                    if (millisUntilFinished <= 10000) {
+                        if (toast != null) {
+                            toast.cancel();
+                        }
+                        toast = Toast.makeText(getContext(), timeLeftString, Toast.LENGTH_SHORT);
+                        toast.setGravity(Gravity.CENTER, 0, (int) -(TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) * 20));
+                        toast.show();
                     }
-                    toast = Toast.makeText(getContext(), timeLeftString, Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, (int) -(TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) * 20));
-                    toast.show();
+                } catch (IllegalStateException e) {
+                    cancel();
                 }
             }
 
             @Override
             public void onFinish() {
-                //TODO Show results view from here
-                Toast.makeText(getContext(), "Time's up!", Toast.LENGTH_LONG).show();
-                String tempTimeLeftString = getString(R.string.time_left);
-                tempTimeLeftString += "00:00";
-                timeLeftTextView.setText(tempTimeLeftString);
+                try {
+                    //TODO Show results view from here
+                    Toast.makeText(getContext(), "Time's up!", Toast.LENGTH_LONG).show();
+                    String tempTimeLeftString = getString(R.string.time_left);
+                    tempTimeLeftString += "00:00";
+                    timeLeftTextView.setText(tempTimeLeftString);
+                } catch (IllegalStateException e) {
+                    cancel();
+                }
             }
         };
 
@@ -110,6 +119,12 @@ public class WordSnapFragment extends Fragment {
 
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        timer.cancel();
+        super.onDestroy();
     }
 
     /**
@@ -133,6 +148,5 @@ public class WordSnapFragment extends Fragment {
 
             return thingsToPhotograph.get(thingsToPhotograph.size() - 1).getmName();
         }
-
     }
 }

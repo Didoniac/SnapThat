@@ -17,7 +17,7 @@ import android.widget.ImageView;
 public class ChooseThemeFragment extends Fragment {
 
     private Button defaultThemeButton;
-    ImageView imgV;
+    private ImageView imgV;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView =
@@ -32,12 +32,7 @@ public class ChooseThemeFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                WordSnapFragment wordSnapFragment = new WordSnapFragment();
-                mainActivity.setWordSnapFragment(wordSnapFragment);
-                FragmentTransaction fragmentTransaction =
-                        mainActivity.getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+                mainActivity.onBackPressed();
 
                 // Gammal testning
                 // mainActivity.photoAndSend();
