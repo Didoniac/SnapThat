@@ -13,6 +13,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -163,14 +164,13 @@ public class ThingToPhotograph{
                 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
                 BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
 
-                bufferedWriter.write();
+                ByteArrayOutputStream byteArrayOutputStream =
+                        new ByteArrayOutputStream(params[0].getWidth() * params[0].getHeight());
+                params[0].compress(Bitmap.CompressFormat.JPEG, 25, byteArrayOutputStream);
 
-                /*
-                Scanner result = new Scanner(connection.getInputStream());
-                String response = result.nextLine();
-                Log.i("ImageUploader", "Error uploading image: " +response);
-                result.close();
-                */
+                //byte[] message = stream.toByteArray();
+
+
 
                 InputStreamReader input = new InputStreamReader(connection.getInputStream());
                 BufferedReader buffr = new BufferedReader(input);
