@@ -16,22 +16,36 @@ import java.util.List;
  */
 public class ReadyUpListAdapter extends ArrayAdapter<PlayerData> {
 
+    private MainActivity mainActivity;
+    private boolean checkboxWasJustClicked = false;
+    private PlayerData currentPlayerData;
+
     private CompoundButton.OnCheckedChangeListener onCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            //TODO
+
+            currentPlayerData.setReady(isChecked);
+
+            if (checkboxWasJustClicked) {
+                //send message to the other players that the player has readied up!
+                mainActivity.sendPlayerDataToOthers();
+            }
+
+            checkboxWasJustClicked = false;
         }
     };
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            //TODO send message to the other players that the player has readied up!
+            checkboxWasJustClicked = true;
         }
     };
 
-    public ReadyUpListAdapter(Context context, int resource, List<PlayerData> playerDatas) {
+    public ReadyUpListAdapter(Context context, int resource, List<PlayerData> playerDatas, MainActivity mainActivity) {
         super(context, resource, playerDatas);
+        this.mainActivity = mainActivity;
+        currentPlayerData = mainActivity.playerData;
     }
 
     @Override
@@ -45,13 +59,13 @@ public class ReadyUpListAdapter extends ArrayAdapter<PlayerData> {
             v = vi.inflate(R.layout.readyup_list_item, parent, false);
         }
 
-        PlayerData playerData = getItem(position);
+        currentPlayerData = getItem(position);
 
-        if (playerData != null) {
+        if (currentPlayerData != null) {
             TextView participantUsernameTextView = (TextView) v.findViewById(R.id.participantUsernameTextView);
 
             if (participantUsernameTextView != null) {
-                participantUsernameTextView.setText(playerData.getUsername());
+                participantUsernameTextView.setText(currentPlayerData.getUsername());
             }
 
             CheckBox readyCheckBox = (CheckBox) v.findViewById(R.id.readyCheckBox);
@@ -59,14 +73,13 @@ public class ReadyUpListAdapter extends ArrayAdapter<PlayerData> {
             if (readyCheckBox != null) {
                 readyCheckBox.setOnCheckedChangeListener(onCheckedChangeListener);
                 readyCheckBox.setOnClickListener(onClickListener);
-                readyCheckBox.setChecked(playerData.isReady());
-            }
+                readyCheckBox.setChecked(currentPlayerData.isReady());
 
-            TextView statusTextView = (TextView) v.findViewById(R.id.statusTextView);
-            if (playerData.hasJoined()) {
-                statusTextView.setText(R.string.joined);
-            } else {
-                statusTextView.setText(R.string.invited);
+                if (currentPlayerData.getPlayerID().equals(mainActivity.playerData.getPlayerID())) {
+                    readyCheckBox.setEnabled(true);
+                } else {
+                    readyCheckBox.setEnabled(false);
+                }
             }
         }
 

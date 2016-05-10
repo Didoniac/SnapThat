@@ -28,7 +28,8 @@ public class NewGameMenuFragment extends Fragment {
         goButton = (Button) rootView.findViewById(R.id.goButton);
         readyUpListView = (ListView) rootView.findViewById(R.id.readyUpListView);
 
-        mainActivity.readyUpListViewAdapter = new ReadyUpListAdapter(mainActivity, R.layout.readyup_list_item, mainActivity.getPlayerDatas());
+        mainActivity.readyUpListViewAdapter
+                = new ReadyUpListAdapter(mainActivity, R.layout.readyup_list_item, mainActivity.getPlayerDatas(), mainActivity);
         readyUpListView.setAdapter(mainActivity.readyUpListViewAdapter);
 
         chooseThemeButton.setOnClickListener(new View.OnClickListener() {

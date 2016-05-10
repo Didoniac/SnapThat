@@ -329,7 +329,6 @@ public class MainActivity
     @Override
     public void onJoinedRoom(int statusCode, Room room) {
         if (statusCode == GamesStatusCodes.STATUS_OK) {
-
             this.room = room;
 
         } else {
@@ -391,8 +390,6 @@ public class MainActivity
 
         // prevent screen from sleeping during handshake
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
- //TODO ta bort denna kommentar       players.add(player);
     }
 
     @Override
@@ -607,12 +604,10 @@ public class MainActivity
 
             if (existsInListAlreadyAtPosition != -1) {
                 PlayerData playerData = playerDatas.get(existsInListAlreadyAtPosition);
-                playerData.setHasJoined(true);
                 readyUpListViewAdapter.notifyDataSetChanged();
             } else {
                 PlayerData playerData
                         = new PlayerData(participant.getParticipantId(), participant.getDisplayName());
-                playerData.setHasJoined(true);
                 playerDatas.add(playerData);
                 readyUpListViewAdapter.notifyDataSetChanged();
             }
@@ -646,6 +641,10 @@ public class MainActivity
                 playerDatas.add(new PlayerData(participants.get(i).getParticipantId(),participants.get(i).getDisplayName()));
             }
         }
+        if (!playerDatas.contains(playerData)) {
+            playerDatas.add(0,playerData);
+        }
+        readyUpListViewAdapter.notifyDataSetChanged();
     }
 
     @Override
