@@ -32,6 +32,7 @@ import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListene
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -389,6 +390,8 @@ public class MainActivity
 
         // prevent screen from sleeping during handshake
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+ //TODO ta bort denna kommentar       players.add(player);
     }
 
     @Override
@@ -484,10 +487,31 @@ public class MainActivity
     public void onRealTimeMessageReceived(RealTimeMessage realTimeMessage) {
         // get real-time message
         byte[] b = realTimeMessage.getMessageData();
+        Object receivedObject = null;
 
-        // process message
-        Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
-        chooseThemeFragment.setImageTest(bitmap);
+        try {
+            receivedObject = ByteArraySerializer.deserialize(b);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (receivedObject != null && receivedObject instanceof Player) {
+            com.example.umyhpuscdi.snapthat.Player receivedPlayerData
+                    = (com.example.umyhpuscdi.snapthat.Player) receivedObject;
+            //Find the player and change it to the new object.
+            for (int i = 0; i < players.size(); i++) {
+                if (receivedPlayerData.getPlayerID().equals(players.get(i).getPlayerID())) {
+                    players.set(i, receivedPlayerData);
+                }
+            }
+            readyUpListViewAdapter.notifyDataSetChanged();
+        } else {
+            // process message
+            Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
+            chooseThemeFragment.setImageTest(bitmap);
+        }
 
         /*Old testing of sending integers
         value = byteArrayToInt(b);
@@ -684,6 +708,18 @@ public class MainActivity
 
     public int getValue() {
         return value;
+    }
+
+    public void sendPlayerDataToOthers() {
+        byte[] message;
+        try {
+            message = ByteArraySerializer.serialize(player);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        // broadcast the object to the other players.
+        sendReliableMessage(googleApiClient, null, message, null, null);
     }
 
     public void photoAndSend() {

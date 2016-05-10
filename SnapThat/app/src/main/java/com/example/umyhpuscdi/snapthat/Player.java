@@ -1,11 +1,17 @@
 package com.example.umyhpuscdi.snapthat;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by umyhpuscdi on 2016-05-09.
  */
-public class Player {
+public class Player implements Serializable {
 
     private ArrayList<ThingToPhotograph> thingsToPhotograph;
     private String username;
