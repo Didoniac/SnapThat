@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by umyhpuscdi on 2016-05-09.
  */
-public class ReadyUpListAdapter extends ArrayAdapter<Player> {
+public class ReadyUpListAdapter extends ArrayAdapter<PlayerData> {
 
     private CompoundButton.OnCheckedChangeListener onCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
@@ -30,8 +30,8 @@ public class ReadyUpListAdapter extends ArrayAdapter<Player> {
         }
     };
 
-    public ReadyUpListAdapter(Context context, int resource, List<Player> players) {
-        super(context, resource, players);
+    public ReadyUpListAdapter(Context context, int resource, List<PlayerData> playerDatas) {
+        super(context, resource, playerDatas);
     }
 
     @Override
@@ -45,13 +45,13 @@ public class ReadyUpListAdapter extends ArrayAdapter<Player> {
             v = vi.inflate(R.layout.readyup_list_item, parent, false);
         }
 
-        Player player = getItem(position);
+        PlayerData playerData = getItem(position);
 
-        if (player != null) {
+        if (playerData != null) {
             TextView participantUsernameTextView = (TextView) v.findViewById(R.id.participantUsernameTextView);
 
             if (participantUsernameTextView != null) {
-                participantUsernameTextView.setText(player.getUsername());
+                participantUsernameTextView.setText(playerData.getUsername());
             }
 
             CheckBox readyCheckBox = (CheckBox) v.findViewById(R.id.readyCheckBox);
@@ -59,11 +59,11 @@ public class ReadyUpListAdapter extends ArrayAdapter<Player> {
             if (readyCheckBox != null) {
                 readyCheckBox.setOnCheckedChangeListener(onCheckedChangeListener);
                 readyCheckBox.setOnClickListener(onClickListener);
-                readyCheckBox.setChecked(player.isReady());
+                readyCheckBox.setChecked(playerData.isReady());
             }
 
             TextView statusTextView = (TextView) v.findViewById(R.id.statusTextView);
-            if (player.hasJoined()) {
+            if (playerData.hasJoined()) {
                 statusTextView.setText(R.string.joined);
             } else {
                 statusTextView.setText(R.string.invited);
