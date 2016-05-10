@@ -6,6 +6,7 @@ import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -217,7 +218,7 @@ public class MainActivity
             // go to game screen
             newGameMenuFragment = new NewGameMenuFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.addToBackStack("MainMenuFragment");
             fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
 
         } else if(requestCode == IMG_TAKEN_CODE){
@@ -268,7 +269,7 @@ public class MainActivity
 
                 // go to game screen
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.addToBackStack("MainMenuFragment");
                 newGameMenuFragment = new NewGameMenuFragment();
                 fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
             }
@@ -319,7 +320,7 @@ public class MainActivity
 
             //show error message, return to main screen.
             Toast.makeText(MainActivity.this, "Error in onRoomCreated!", Toast.LENGTH_SHORT).show();
-            onBackPressed();
+            getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
 
@@ -335,7 +336,7 @@ public class MainActivity
 
             //show error message, return to main screen.
             Toast.makeText(MainActivity.this, "Error in onJoinedRoom!", Toast.LENGTH_SHORT).show();
-            onBackPressed();
+            getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
 
@@ -354,7 +355,7 @@ public class MainActivity
 
             //show error message, return to main screen.
             Toast.makeText(MainActivity.this, "Error in onRoomConnected!", Toast.LENGTH_SHORT).show();
-            onBackPressed();
+            getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
 
@@ -391,9 +392,9 @@ public class MainActivity
     }
 
     @Override
-    public void leave(GoogleApiClient googleApiClient, RoomUpdateListener roomUpdateListener, String s) {
+    public void leave(GoogleApiClient googleApiClient, RoomUpdateListener roomUpdateListener, String roomId) {
         // leave room
-        Games.RealTimeMultiplayer.leave(googleApiClient, null, room.getRoomId());
+        Games.RealTimeMultiplayer.leave(googleApiClient, roomUpdateListener, roomId);
 
         // remove the flag that keeps the screen on
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -455,7 +456,7 @@ public class MainActivity
 
         // go to game screen
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.addToBackStack("MainMenuFragment");
         newGameMenuFragment = new NewGameMenuFragment();
         fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
     }
@@ -513,14 +514,20 @@ public class MainActivity
         return connectedPlayers >= MIN_PLAYERS;
     }
 
-    // Returns whether the room is in a state where the game should be canceled.
-/*    public boolean shouldCancelGame(Room room) {
-        // TODO: Your game-specific cancellation logic here. For example, you might decide to
+    /**
+     * Returns whether the room is in a state where the game should be canceled.
+     */
+    public boolean shouldCancelGame(Room room) {
+        // Your game-specific cancellation logic here. For example, you might decide to
         // cancel the game if enough people have declined the invitation or left the room.
         // You can check a participant's status with Participant.getStatus().
         // (Also, your UI should have a Cancel button that cancels the game too)
+        if (room.getParticipants().size() < MIN_PLAYERS) {
+            return true;
+        } else {
+            return false;
+        }
     }
-*/
 
     @Override
     public void onRoomConnecting(Room room) {
@@ -620,11 +627,11 @@ public class MainActivity
     @Override
     public void onDisconnectedFromRoom(Room room) {
         // leave the room
-        leave(googleApiClient, null, room.getRoomId());
+        leave(googleApiClient, this, room.getRoomId());
 
         // show error message and return to main screen
         Toast.makeText(MainActivity.this, "You got disconnected.", Toast.LENGTH_SHORT).show();
-        onBackPressed();
+        getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
     @Override
@@ -647,6 +654,10 @@ public class MainActivity
             stringToDisplay += "\n" + participant.getDisplayName();
         }
         Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
+
+        if (shouldCancelGame(room)) {
+            leave(googleApiClient, this, room.getRoomId());
+        }
     }
 
     @Override

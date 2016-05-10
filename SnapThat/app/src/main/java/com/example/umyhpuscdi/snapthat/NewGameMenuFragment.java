@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * Created by umyhpuscdi on 2016-05-09.
@@ -44,12 +45,16 @@ public class NewGameMenuFragment extends Fragment {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WordSnapFragment wordSnapFragment = new WordSnapFragment();
-                mainActivity.setWordSnapFragment(wordSnapFragment);
-                FragmentTransaction fragmentTransaction =
-                        mainActivity.getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+                if (mainActivity.shouldStartGame()) {
+                    WordSnapFragment wordSnapFragment = new WordSnapFragment();
+                    mainActivity.setWordSnapFragment(wordSnapFragment);
+                    FragmentTransaction fragmentTransaction =
+                            mainActivity.getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+                } else {
+                    Toast.makeText(getContext(), "At least 2 players is required to play.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
