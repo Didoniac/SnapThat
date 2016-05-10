@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * Created by umyhpuscdi on 2016-05-09.
  */
-public class Player {
+public class PlayerData {
 
     private ArrayList<ThingToPhotograph> thingsToPhotograph;
     private String username;
@@ -16,7 +16,7 @@ public class Player {
     //false: invited but hasn't joined, true: joined
     private boolean hasJoined = false;
 
-    public Player(String playerID, String username) {
+    public PlayerData(String playerID, String username) {
         this.playerID = playerID;
         this.username = username;
     }

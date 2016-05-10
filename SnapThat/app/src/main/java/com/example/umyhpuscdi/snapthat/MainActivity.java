@@ -78,10 +78,10 @@ public class MainActivity
     private boolean playing = false;
 
     //The user
-    private Player player;
+    protected PlayerData playerData;
 
     //All players in the room
-    private ArrayList<com.example.umyhpuscdi.snapthat.Player> players = new ArrayList<>();
+    private ArrayList<PlayerData> playerDatas = new ArrayList<>();
 
     private Room room;
 
@@ -240,7 +240,8 @@ public class MainActivity
     public void onConnected(Bundle connectionHint) {
 
         // Set the greeting appropriately on main menu
-        player = Games.Players.getCurrentPlayer(googleApiClient);
+        Player player = Games.Players.getCurrentPlayer(googleApiClient);
+        this.playerData = new PlayerData(player.getPlayerId(),player.getDisplayName());
         String displayName;
         if (player == null) {
             Log.w("TAG", "Games.Players.getCurrentPlayer() is NULL!");
@@ -406,7 +407,7 @@ public class MainActivity
 
         for (Participant p : room.getParticipants()) {
             //Send the byte[] message to everyone except yourself.
-            if (!p.getParticipantId().equals(player.getPlayerId())) {
+            if (!p.getParticipantId().equals(playerData.getPlayerID())) {
                 Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, null, message,
                         room.getRoomId(), p.getParticipantId());
             }
@@ -538,9 +539,9 @@ public class MainActivity
         for (int i = 0; i < participantIds.size(); i++) {
             participant = room.getParticipant(participantIds.get(i));
 
-            com.example.umyhpuscdi.snapthat.Player player
-                    = new com.example.umyhpuscdi.snapthat.Player(participant.getParticipantId(), participant.getDisplayName());
-            players.add(player);
+            PlayerData playerData
+                    = new PlayerData(participant.getParticipantId(), participant.getDisplayName());
+            playerDatas.add(playerData);
             readyUpListViewAdapter.notifyDataSetChanged();
         }
     }
@@ -552,8 +553,8 @@ public class MainActivity
         for (int i = 0; i < participantIds.size(); i++) {
             participant = room.getParticipant(participantIds.get(i));
             stringToDisplay += "\n" + participant.getDisplayName();
-            if (participantIds.get(i).equals(players.get(i).getPlayerID())) {
-                players.remove(i);
+            if (participantIds.get(i).equals(playerDatas.get(i).getPlayerID())) {
+                playerDatas.remove(i);
                 readyUpListViewAdapter.notifyDataSetChanged();
             }
         }
@@ -568,21 +569,21 @@ public class MainActivity
             participant = room.getParticipant(participantIds.get(i));
 
             //Update player list
-            for (int j = 0; j < players.size(); j++) {
-                if (participant.getParticipantId().equals(players.get(j).getPlayerID())) {
+            for (int j = 0; j < playerDatas.size(); j++) {
+                if (participant.getParticipantId().equals(playerDatas.get(j).getPlayerID())) {
                     existsInListAlreadyAtPosition = j;
                 }
             }
 
             if (existsInListAlreadyAtPosition != -1) {
-                com.example.umyhpuscdi.snapthat.Player player = players.get(existsInListAlreadyAtPosition);
-                player.setHasJoined(true);
+                PlayerData playerData = playerDatas.get(existsInListAlreadyAtPosition);
+                playerData.setHasJoined(true);
                 readyUpListViewAdapter.notifyDataSetChanged();
             } else {
-                com.example.umyhpuscdi.snapthat.Player player
-                        = new com.example.umyhpuscdi.snapthat.Player(participant.getParticipantId(), participant.getDisplayName());
-                player.setHasJoined(true);
-                players.add(player);
+                PlayerData playerData
+                        = new PlayerData(participant.getParticipantId(), participant.getDisplayName());
+                playerData.setHasJoined(true);
+                playerDatas.add(playerData);
                 readyUpListViewAdapter.notifyDataSetChanged();
             }
 
@@ -598,8 +599,8 @@ public class MainActivity
         for (int i = 0; i < participantIds.size(); i++) {
             participant = room.getParticipant(participantIds.get(i));
             stringToDisplay += "\n" + participant.getDisplayName();
-            if (participantIds.get(i).equals(players.get(i).getPlayerID())) {
-                players.remove(i);
+            if (participantIds.get(i).equals(playerDatas.get(i).getPlayerID())) {
+                playerDatas.remove(i);
                 readyUpListViewAdapter.notifyDataSetChanged();
             }
         }
@@ -609,10 +610,10 @@ public class MainActivity
     @Override
     public void onConnectedToRoom(Room room) {
         Toast.makeText(MainActivity.this, "Connected.", Toast.LENGTH_SHORT).show();
-        if (players.size() == 0) {
+        if (playerDatas.size() == 0) {
             ArrayList<Participant> participants = room.getParticipants();
             for (int i = 0; i < participants.size(); i++) {
-                players.add(new com.example.umyhpuscdi.snapthat.Player(participants.get(i).getParticipantId(),participants.get(i).getDisplayName()));
+                playerDatas.add(new PlayerData(participants.get(i).getParticipantId(),participants.get(i).getDisplayName()));
             }
         }
     }
@@ -684,8 +685,8 @@ public class MainActivity
         this.wordSnapFragment = wordSnapFragment;
     }
 
-    public ArrayList<com.example.umyhpuscdi.snapthat.Player> getPlayers() {
-        return players;
+    public ArrayList<PlayerData> getPlayerDatas() {
+        return playerDatas;
     }
 
     @Override

@@ -44,6 +44,7 @@ public class WordSnapFragment extends Fragment {
             thingsToPhotograph.add(new ThingToPhotograph(thingToPhotographString, thingToPhotographString, mainActivity));
         }
         Collections.shuffle(thingsToPhotograph);
+        mainActivity.playerData.setThingsToPhotograph(thingsToPhotograph);
 
         //get the name of the thing to photograph
         wordTextView.setText(thingsToPhotograph.get(0).getmTitle());
