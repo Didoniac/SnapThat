@@ -59,7 +59,7 @@ public class WordSnapFragment extends Fragment {
         snapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.photoAndSend();
+                mainActivity.photoAndSend(getIndexOfCurrentWord());
             }
         });
 
@@ -132,12 +132,8 @@ public class WordSnapFragment extends Fragment {
      * set text of wordTextView to next word.
      */
     public String showNextWord() {
-        ArrayList<String> temp = new ArrayList<>();
-        for (int i = 0; i < thingsToPhotograph.size(); i++) {
-            temp.add(thingsToPhotograph.get(i).getmTitle());
-        }
 
-        int nextIndex = temp.indexOf(wordTextView.getText().toString()) + 1;
+        int nextIndex = getIndexOfCurrentWord() + 1;
 
         if (thingsToPhotograph.size() > nextIndex) {
             String newString = thingsToPhotograph.get(nextIndex).getmTitle();
@@ -149,5 +145,15 @@ public class WordSnapFragment extends Fragment {
 
             return thingsToPhotograph.get(thingsToPhotograph.size() - 1).getmTitle();
         }
+    }
+
+    public int getIndexOfCurrentWord(){
+        ArrayList<String> wordTitles = new ArrayList<>();
+        for (int i = 0; i < thingsToPhotograph.size(); i++) {
+            wordTitles.add(thingsToPhotograph.get(i).getmTitle());
+        }
+
+        int index = wordTitles.indexOf(wordTextView.getText().toString());
+        return index;
     }
 }

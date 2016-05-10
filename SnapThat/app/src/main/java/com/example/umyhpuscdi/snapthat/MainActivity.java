@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -225,13 +226,19 @@ public class MainActivity
                 // canceled
                 return;
             }
-            Bitmap bitmap = CameraHandler.getBitmap(latestPicIntent, 4);
+            Uri latestPictureUri = CameraHandler.getFilePathFromIntent(latestPicIntent);
+            int latestWordIndex = wordSnapFragment.getIndexOfCurrentWord();
+            playerData.getThingsToPhotograph().get(latestWordIndex).setmFilePath(latestPictureUri);
+            playerData.getThingsToPhotograph().get(latestWordIndex).uploadAndCheck();
+
+
             ByteArrayOutputStream stream =
                     new ByteArrayOutputStream(bitmap.getWidth() * bitmap.getHeight());
             bitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream);
             byte[] message = stream.toByteArray();
             sendReliableMessage(googleApiClient, null, message, null, null);
             chooseThemeFragment.setImageTest(bitmap);
+
             wordSnapFragment.showNextWord();
         }
     }
@@ -676,7 +683,7 @@ public class MainActivity
         return value;
     }
 
-    public void photoAndSend() {
+    public void photoAndSend(int indexOfCurrentWord) {
         latestPicIntent = CameraHandler.getPictureFileIntent(this, "SnapThat");
         startActivityForResult(latestPicIntent, IMG_TAKEN_CODE);
     }
