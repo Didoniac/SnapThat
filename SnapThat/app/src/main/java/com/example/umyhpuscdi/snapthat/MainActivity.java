@@ -42,7 +42,8 @@ public class MainActivity
         RoomUpdateListener,
         RealTimeMultiplayer,
         RealTimeMessageReceivedListener,
-        RoomStatusUpdateListener {
+        RoomStatusUpdateListener,
+        ThingToPhotograph.PostDownloadAPIGuessExecuteListener{
 
     private MainMenuFragment mainMenuFragment;
     private ChooseThemeFragment chooseThemeFragment;
@@ -214,10 +215,10 @@ public class MainActivity
             join(googleApiClient, roomConfig);
 
             // go to game screen
-            chooseThemeFragment = new ChooseThemeFragment();
+            newGameMenuFragment = new NewGameMenuFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.replace(R.id.mainLayout, chooseThemeFragment).commit();
+            fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
 
         } else if(requestCode == IMG_TAKEN_CODE){
             if (resultCode != Activity.RESULT_OK || !isSignedIn()) {
@@ -685,5 +686,9 @@ public class MainActivity
 
     public ArrayList<com.example.umyhpuscdi.snapthat.Player> getPlayers() {
         return players;
+    }
+
+    @Override
+    public void postAPIGuess(ThingToPhotograph theThing, boolean accepted, String crappyJsonGuesses) {
     }
 }

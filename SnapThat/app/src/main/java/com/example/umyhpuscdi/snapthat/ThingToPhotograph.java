@@ -6,42 +6,44 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.util.Scanner;
+
 
 /**
  * Created by umyhblomti on 2016-05-02.
  */
 public class ThingToPhotograph{
 
-    private String mName;
+    private static final String X_MASHAPE_KEY = "J5ykIANsTimshEs1KFCqdavnWsDPp1vY2ILjsn26bsA9ElIZJw";
+
+    private String mSearchTerm;
+    private String mTitle;
 
     private boolean isPhotographed = false;
     private boolean uploadedAndChecked = false;
     private boolean accepted = false;
     private Uri mFilePath;
+    private PostDownloadAPIGuessExecuteListener mListener;
 
-    public String getmName() {
-        return mName;
+    public interface PostDownloadAPIGuessExecuteListener{
+        void postAPIGuess(ThingToPhotograph self, boolean accepted, String crappyJsonGuesses);
     }
 
-    public ThingToPhotograph(String name){
-        mName = name;
+    public String getmSearchTerm() {
+        return mSearchTerm;
+    }
+
+    public String getmTitle() {
+        return mTitle;
+    }
+
+    public ThingToPhotograph(String title, String searchTerm, PostDownloadAPIGuessExecuteListener listener){
+        mTitle = title;
+        mSearchTerm = searchTerm;
+        mListener = listener;
     }
 
     public boolean isPhotographed() {
@@ -71,11 +73,13 @@ public class ThingToPhotograph{
     updates:
     uploadedAndChecked
     accepted
+
+    After that mListeners method "postAPIGuess" is run
      */
     public void uploadAndCheck(){
         if(isPhotographed) {
             PicToWordAsyncTask asyncTask = new PicToWordAsyncTask();
-            asyncTask.execute(getBitmap());
+            asyncTask.execute(getFile());
         }else {
             Log.i("ThingToPhotograph", "picture hasn't been taken yet, supply a filepath with setmFilePath");
         }
@@ -85,38 +89,47 @@ public class ThingToPhotograph{
         return new File(mFilePath.getPath());
     }
 
-    public Bitmap getBitmap(){
-
-        //TODO set inSamplesize to be dynamic
+    public Bitmap getBitmap(int inSampleSize){
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 4;
+        options.inSampleSize = inSampleSize;
 
         Bitmap bitmap = BitmapFactory.decodeFile(mFilePath.getPath(), options);
         return bitmap;
     }
 
     private void onPostExecuteUploadAndCheck(String jsonString){
-        Log.i("HTTP SHIT", jsonString);
-        if(doesJsonContainWord(jsonString)){
-            accepted = true;
-        }else {
-            accepted = false;
+        if(jsonString == null) {
+            return;
+        }else{
+            int indexScore = jsonString.indexOf("score");
+            String jsonStringWithoutImage =  jsonString.substring(indexScore);
+            jsonString = jsonStringWithoutImage;
+
+            if(doesJsonContainWord(jsonString)){
+                accepted = true;
+            }else {
+                accepted = false;
+            }
         }
         uploadedAndChecked = true;
+        mListener.postAPIGuess(this, accepted, jsonString);
     }
 
     private boolean doesJsonContainWord(String jsonString){
-        return true;
+        if(jsonString.contains(this.mSearchTerm)){
+            return true;
+        }else {
+            return false;
+        }
     }
 
-    private class PicToWordAsyncTask extends AsyncTask<Bitmap, Void, String>{
+    private class PicToWordAsyncTask extends AsyncTask<File, Void, String>{
 
         private static final String API_URL = "https://quasiris-image-recognition-automatic-picture-labeling-v1.p.mashape.com/classify_upload?plain=1";
         URL url;
-        HttpURLConnection connection;
 
         @Override
-        protected String doInBackground(Bitmap... params) {
+        protected String doInBackground(File... params) {
 
             //Create URL
             try{
@@ -125,54 +138,18 @@ public class ThingToPhotograph{
                 e.printStackTrace();
             }
 
-            //Create Connection
+            String charset = "UTF_8";
+            MultipartUtility multipart = null;
             try {
-                connection = (HttpURLConnection) url.openConnection();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                multipart = new MultipartUtility(API_URL, charset);
 
-            //Setup request
-            try {
-                connection.setRequestMethod("POST");
-                connection.setDoOutput(true);
-                connection.setChunkedStreamingMode(0);
-                connection.setDoInput(true);
-                //change to send a picture-file
-                //connection.setRequestProperty("Content-type", "application/json");
-                connection.setRequestProperty("Accept", "application/json");
-            } catch (ProtocolException e) {
-                e.printStackTrace();
-            }
+                //add your file here.
+                /*This is to add file content*/
+                multipart.addFilePart("imagefile", params[0]);
 
-            //Upload
-            try {
-                connection.connect();
-
-                OutputStream outStream = connection.getOutputStream();
-                params[0].compress(Bitmap.CompressFormat.JPEG, 50, outStream);
-                outStream.close();
-
-                /*
-                Scanner result = new Scanner(connection.getInputStream());
-                String response = result.nextLine();
-                Log.i("ImageUploader", "Error uploading image: " +response);
-                result.close();
-                */
-
-                InputStreamReader input = new InputStreamReader(connection.getInputStream());
-                BufferedReader buffr = new BufferedReader(input);
-
-                String inputLine;
-                StringBuffer strBuffr = new StringBuffer();
-                while((inputLine = buffr.readLine()) != null){
-                    strBuffr.append(inputLine);
-                }
-                buffr.close();
-                String response = strBuffr.toString();
+                String response = multipart.finish().toString();
 
                 return response;
-
             } catch (IOException e) {
                 e.printStackTrace();
             }

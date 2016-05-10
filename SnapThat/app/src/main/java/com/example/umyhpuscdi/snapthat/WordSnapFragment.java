@@ -41,12 +41,12 @@ public class WordSnapFragment extends Fragment {
         String[] thingsToPhotographStrings = mainActivity.getResources().getStringArray(R.array.office);
 
         for (String thingToPhotographString : thingsToPhotographStrings) {
-            thingsToPhotograph.add(new ThingToPhotograph(thingToPhotographString));
+            thingsToPhotograph.add(new ThingToPhotograph(thingToPhotographString, thingToPhotographString, mainActivity));
         }
         Collections.shuffle(thingsToPhotograph);
 
         //get the name of the thing to photograph
-        wordTextView.setText(thingsToPhotograph.get(0).getmName());
+        wordTextView.setText(thingsToPhotograph.get(0).getmTitle());
 
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,20 +133,20 @@ public class WordSnapFragment extends Fragment {
     public String showNextWord() {
         ArrayList<String> temp = new ArrayList<>();
         for (int i = 0; i < thingsToPhotograph.size(); i++) {
-            temp.add(thingsToPhotograph.get(i).getmName());
+            temp.add(thingsToPhotograph.get(i).getmTitle());
         }
 
         int nextIndex = temp.indexOf(wordTextView.getText().toString()) + 1;
 
         if (thingsToPhotograph.size() > nextIndex) {
-            String newString = thingsToPhotograph.get(nextIndex).getmName();
+            String newString = thingsToPhotograph.get(nextIndex).getmTitle();
             wordTextView.setText(newString);
             return newString;
         } else {
             Toast.makeText(mainActivity, "There are no items left to photograph.",
                     Toast.LENGTH_SHORT).show();
 
-            return thingsToPhotograph.get(thingsToPhotograph.size() - 1).getmName();
+            return thingsToPhotograph.get(thingsToPhotograph.size() - 1).getmTitle();
         }
     }
 }
