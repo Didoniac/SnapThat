@@ -129,6 +129,8 @@ public class ThingToPhotograph{
         }
     }
 
+    private String bestGuessFromJson(String jsonString)
+
     private class PicToWordAsyncTask extends AsyncTask<File, Void, String>{
 
         private static final String API_URL = "https://quasiris-image-recognition-automatic-picture-labeling-v1.p.mashape.com/classify_upload?plain=1";
