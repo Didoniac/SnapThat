@@ -20,6 +20,9 @@ public class PlayerData implements Serializable {
     private int score, numberOfPhotos;
     private String playerID;
 
+    //For serialization
+    private static final long serialVersionUID =-3016869652413998727L;
+
     public PlayerData(String playerID, String username) {
         this.playerID = playerID;
         this.username = username;
