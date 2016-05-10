@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements ThingToPhotograph
     }
 
     @Override
-    public void postAPIGuess(boolean accepted, String crappyJsonGuesses) {
+    public void postAPIGuess(ThingToPhotograph theThing, boolean accepted, String crappyJsonGuesses) {
         TextView tv = (TextView)findViewById(R.id.TESTTEXTVIEW);
 
         String text;

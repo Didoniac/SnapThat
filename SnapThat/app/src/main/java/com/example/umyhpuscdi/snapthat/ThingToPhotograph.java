@@ -29,7 +29,7 @@ public class ThingToPhotograph{
     private PostDownloadAPIGuessExecuteListener mListener;
 
     public interface PostDownloadAPIGuessExecuteListener{
-        void postAPIGuess(boolean accepted, String crappyJsonGuesses);
+        void postAPIGuess(ThingToPhotograph self, boolean accepted, String crappyJsonGuesses);
     }
 
     public String getmSearchTerm() {
@@ -112,7 +112,7 @@ public class ThingToPhotograph{
             }
         }
         uploadedAndChecked = true;
-        mListener.postAPIGuess(accepted, jsonString);
+        mListener.postAPIGuess(this, accepted, jsonString);
     }
 
     private boolean doesJsonContainWord(String jsonString){
