@@ -21,9 +21,9 @@ public class ThingToPhotograph{
 
     private String mSearchTerm;
     private String mTitle;
-
     private boolean isPhotographed = false;
     private boolean uploadedAndChecked = false;
+    private boolean isUploading = false;
     private boolean accepted = false;
     private Uri mFilePath;
     private PostDownloadAPIGuessExecuteListener mListener;
@@ -54,6 +54,10 @@ public class ThingToPhotograph{
         return uploadedAndChecked;
     }
 
+    public boolean isUploading() {
+        return isUploading;
+    }
+
     public boolean isAccepted() {
         return accepted;
     }
@@ -78,6 +82,7 @@ public class ThingToPhotograph{
      */
     public void uploadAndCheck(){
         if(isPhotographed) {
+            isUploading = true;
             PicToWordAsyncTask asyncTask = new PicToWordAsyncTask();
             asyncTask.execute(getFile());
         }else {
@@ -112,6 +117,7 @@ public class ThingToPhotograph{
             }
         }
         uploadedAndChecked = true;
+        isUploading = false;
         mListener.postAPIGuess(this, accepted, jsonString);
     }
 

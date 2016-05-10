@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
@@ -230,14 +231,6 @@ public class MainActivity
             int latestWordIndex = wordSnapFragment.getIndexOfCurrentWord();
             playerData.getThingsToPhotograph().get(latestWordIndex).setmFilePath(latestPictureUri);
             playerData.getThingsToPhotograph().get(latestWordIndex).uploadAndCheck();
-
-
-            ByteArrayOutputStream stream =
-                    new ByteArrayOutputStream(bitmap.getWidth() * bitmap.getHeight());
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream);
-            byte[] message = stream.toByteArray();
-            sendReliableMessage(googleApiClient, null, message, null, null);
-            chooseThemeFragment.setImageTest(bitmap);
 
             wordSnapFragment.showNextWord();
         }
@@ -698,5 +691,12 @@ public class MainActivity
 
     @Override
     public void postAPIGuess(ThingToPhotograph theThing, boolean accepted, String crappyJsonGuesses) {
+        String toastText;
+        if(accepted) {
+            toastText = "YES!";
+        }else {
+            toastText = crappyJsonGuesses.substring(0, 10);
+        }
+        Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
     }
 }
