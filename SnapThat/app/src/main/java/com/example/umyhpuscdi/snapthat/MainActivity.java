@@ -495,7 +495,7 @@ public class MainActivity
             e.printStackTrace();
         }
 
-        if (receivedObject != null && receivedObject instanceof Player) {
+        if (receivedObject != null && receivedObject instanceof PlayerData) {
             PlayerData receivedPlayerData = (PlayerData) receivedObject;
             //Find the player and change it to the new object.
             for (int i = 0; i < playerDatas.size(); i++) {
