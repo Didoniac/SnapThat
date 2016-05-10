@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -27,8 +28,8 @@ public class NewGameMenuFragment extends Fragment {
         goButton = (Button) rootView.findViewById(R.id.goButton);
         readyUpListView = (ListView) rootView.findViewById(R.id.readyUpListView);
 
-        //initiate ListView with adapter containing readyup_list_items representing players.
-        readyUpListView.setAdapter(new ReadyUpListAdapter(mainActivity, R.layout.readyup_list_item, mainActivity.getPlayers()));
+        mainActivity.readyUpListViewAdapter = new ReadyUpListAdapter(mainActivity, R.layout.readyup_list_item, mainActivity.getPlayers());
+        readyUpListView.setAdapter(mainActivity.readyUpListViewAdapter);
 
         chooseThemeButton.setOnClickListener(new View.OnClickListener() {
             @Override

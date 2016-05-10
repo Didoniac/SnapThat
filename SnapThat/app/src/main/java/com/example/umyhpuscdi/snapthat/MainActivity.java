@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -89,7 +90,9 @@ public class MainActivity
     private Intent latestPicIntent;
 
     private static final int PICTURE_REQUEST_CODE = 100;
-    Intent pictureIntent;
+    private Intent pictureIntent;
+
+    protected ArrayAdapter readyUpListViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,7 +202,7 @@ public class MainActivity
                     extras.getParcelable(Multiplayer.EXTRA_INVITATION);
 
             // accept it!
-            RoomConfig roomConfig = null;
+            RoomConfig roomConfig;
             if (invitation != null) {
                 roomConfig = makeBasicRoomConfigBuilder()
                         .setInvitationIdToAccept(invitation.getInvitationId())
@@ -208,10 +211,7 @@ public class MainActivity
                 //Invitation doesn't exist
                 return;
             }
-            Games.RealTimeMultiplayer.join(googleApiClient, roomConfig);
-
-            // prevent screen from sleeping during handshake
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            join(googleApiClient, roomConfig);
 
             // go to game screen
             chooseThemeFragment = new ChooseThemeFragment();
@@ -236,8 +236,7 @@ public class MainActivity
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
-        Log.d("TAG", "onConnected(): connected to Google APIs");
+    public void onConnected(Bundle connectionHint) {
 
         // Set the greeting appropriately on main menu
         player = Games.Players.getCurrentPlayer(googleApiClient);
@@ -251,11 +250,33 @@ public class MainActivity
         Toast.makeText(MainActivity.this, "Welcome " + displayName + "!", Toast.LENGTH_SHORT).show();
         mainMenuFragment.setGreeting(getString(R.string.signed_in));
         mainMenuFragment.setNewGameButtonsClickable(true);
+
+        //If player already accepted invite
+        if (connectionHint != null) {
+            Invitation inv =
+                    connectionHint.getParcelable(Multiplayer.EXTRA_INVITATION);
+
+            if (inv != null) {
+                // accept invitation
+                RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder();
+                roomConfigBuilder.setInvitationIdToAccept(inv.getInvitationId());
+                Games.RealTimeMultiplayer.join(googleApiClient, roomConfigBuilder.build());
+
+                // prevent screen from sleeping during handshake
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+                // go to game screen
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.addToBackStack(null);
+                newGameMenuFragment = new NewGameMenuFragment();
+                fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
+            }
+        }
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.d("TAG", "onConnectionSuspended(): attempting to connect");
+        // attempt to connect
         googleApiClient.connect();
     }
 
@@ -271,7 +292,6 @@ public class MainActivity
             resolvingConnectionFailure = true;
             if (connectionResult.hasResolution()) {
                 try {
-                    // !!!
                     connectionResult.startResolutionForResult(this, RC_RESOLVE);
 
                 } catch (IntentSender.SendIntentException e) {
@@ -354,17 +374,28 @@ public class MainActivity
 
     @Override
     public void create(GoogleApiClient googleApiClient, RoomConfig roomConfig) {
+        // create room:
+        Games.RealTimeMultiplayer.create(googleApiClient, roomConfig);
 
+        // prevent screen from sleeping during handshake
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
     public void join(GoogleApiClient googleApiClient, RoomConfig roomConfig) {
+        Games.RealTimeMultiplayer.join(googleApiClient, roomConfig);
 
+        // prevent screen from sleeping during handshake
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
     public void leave(GoogleApiClient googleApiClient, RoomUpdateListener roomUpdateListener, String s) {
+        // leave room
+        Games.RealTimeMultiplayer.leave(googleApiClient, null, room.getRoomId());
 
+        // remove the flag that keeps the screen on
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
@@ -419,10 +450,7 @@ public class MainActivity
         RoomConfig roomConfig = roomConfigBuilder.build();
 
         // create room:
-        Games.RealTimeMultiplayer.create(googleApiClient, roomConfig);
-
-        // prevent screen from sleeping during handshake
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        create(googleApiClient, roomConfig);
 
         // go to game screen
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -495,7 +523,7 @@ public class MainActivity
 
     @Override
     public void onRoomConnecting(Room room) {
-
+        Toast.makeText(MainActivity.this, "Connecting to room.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -504,52 +532,129 @@ public class MainActivity
     }
 
     @Override
-    public void onPeerInvitedToRoom(Room room, List<String> list) {
+    public void onPeerInvitedToRoom(Room room, List<String> participantIds) {
+        Participant participant;
+        for (int i = 0; i < participantIds.size(); i++) {
+            participant = room.getParticipant(participantIds.get(i));
 
+            com.example.umyhpuscdi.snapthat.Player player
+                    = new com.example.umyhpuscdi.snapthat.Player(participant.getParticipantId(), participant.getDisplayName());
+            players.add(player);
+            readyUpListViewAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
-    public void onPeerDeclined(Room room, List<String> list) {
-
+    public void onPeerDeclined(Room room, List<String> participantIds) {
+        Participant participant;
+        String stringToDisplay = "Players have declined their invite:";
+        for (int i = 0; i < participantIds.size(); i++) {
+            participant = room.getParticipant(participantIds.get(i));
+            stringToDisplay += "\n" + participant.getDisplayName();
+            if (participantIds.get(i).equals(players.get(i).getPlayerID())) {
+                players.remove(i);
+                readyUpListViewAdapter.notifyDataSetChanged();
+            }
+        }
+        Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public void onPeerJoined(Room room, List<String> list) {
+    public void onPeerJoined(Room room, List<String> participantIds) {
+        Participant participant;
+        int existsInListAlreadyAtPosition = -1;
+        for (int i = 0; i < participantIds.size(); i++) {
+            participant = room.getParticipant(participantIds.get(i));
 
+            //Update player list
+            for (int j = 0; j < players.size(); j++) {
+                if (participant.getParticipantId().equals(players.get(j).getPlayerID())) {
+                    existsInListAlreadyAtPosition = j;
+                }
+            }
+
+            if (existsInListAlreadyAtPosition != -1) {
+                com.example.umyhpuscdi.snapthat.Player player = players.get(existsInListAlreadyAtPosition);
+                player.setHasJoined(true);
+                readyUpListViewAdapter.notifyDataSetChanged();
+            } else {
+                com.example.umyhpuscdi.snapthat.Player player
+                        = new com.example.umyhpuscdi.snapthat.Player(participant.getParticipantId(), participant.getDisplayName());
+                player.setHasJoined(true);
+                players.add(player);
+                readyUpListViewAdapter.notifyDataSetChanged();
+            }
+
+            //Reset value for next loop
+            existsInListAlreadyAtPosition = -1;
+        }
     }
 
     @Override
-    public void onPeerLeft(Room room, List<String> list) {
-
+    public void onPeerLeft(Room room, List<String> participantIds) {
+        Participant participant;
+        String stringToDisplay = "Players have left the room:";
+        for (int i = 0; i < participantIds.size(); i++) {
+            participant = room.getParticipant(participantIds.get(i));
+            stringToDisplay += "\n" + participant.getDisplayName();
+            if (participantIds.get(i).equals(players.get(i).getPlayerID())) {
+                players.remove(i);
+                readyUpListViewAdapter.notifyDataSetChanged();
+            }
+        }
+        Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onConnectedToRoom(Room room) {
-
+        Toast.makeText(MainActivity.this, "Connected.", Toast.LENGTH_SHORT).show();
+        if (players.size() == 0) {
+            ArrayList<Participant> participants = room.getParticipants();
+            for (int i = 0; i < participants.size(); i++) {
+                players.add(new com.example.umyhpuscdi.snapthat.Player(participants.get(i).getParticipantId(),participants.get(i).getDisplayName()));
+            }
+        }
     }
 
     @Override
     public void onDisconnectedFromRoom(Room room) {
+        // leave the room
+        leave(googleApiClient, null, room.getRoomId());
+
+        // show error message and return to main screen
+        Toast.makeText(MainActivity.this, "You got disconnected.", Toast.LENGTH_SHORT).show();
+        onBackPressed();
+    }
+
+    @Override
+    public void onPeersConnected(Room room, List<String> participantIds) {
+        Participant participant;
+        String stringToDisplay = "Players have connected:";
+        for (int i = 0; i < participantIds.size(); i++) {
+            participant = room.getParticipant(participantIds.get(i));
+            stringToDisplay += "\n" + participant.getDisplayName();
+        }
+        Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onPeersDisconnected(Room room, List<String> participantIds) {
+        Participant participant;
+        String stringToDisplay = "Players have disconnected:";
+        for (int i = 0; i < participantIds.size(); i++) {
+            participant = room.getParticipant(participantIds.get(i));
+            stringToDisplay += "\n" + participant.getDisplayName();
+        }
+        Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onP2PConnected(String participantId) {
 
     }
 
     @Override
-    public void onPeersConnected(Room room, List<String> list) {
-
-    }
-
-    @Override
-    public void onPeersDisconnected(Room room, List<String> list) {
-
-    }
-
-    @Override
-    public void onP2PConnected(String s) {
-
-    }
-
-    @Override
-    public void onP2PDisconnected(String s) {
+    public void onP2PDisconnected(String participantId) {
 
     }
 

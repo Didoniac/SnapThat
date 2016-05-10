@@ -13,6 +13,13 @@ public class Player {
     private int score, numberOfPhotos;
     private String playerID;
 
+    //false: invited but hasn't joined, true: joined
+    private boolean hasJoined = false;
+
+    public Player(String playerID, String username) {
+        this.playerID = playerID;
+        this.username = username;
+    }
 
     public ArrayList<ThingToPhotograph> getThingsToPhotograph() {
         return thingsToPhotograph;
@@ -60,5 +67,13 @@ public class Player {
 
     public void setPlayerID(String playerID) {
         this.playerID = playerID;
+    }
+
+    public boolean hasJoined() {
+        return hasJoined;
+    }
+
+    public void setHasJoined(boolean hasJoined) {
+        this.hasJoined = hasJoined;
     }
 }

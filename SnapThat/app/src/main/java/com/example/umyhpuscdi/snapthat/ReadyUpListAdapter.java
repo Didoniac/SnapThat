@@ -61,6 +61,13 @@ public class ReadyUpListAdapter extends ArrayAdapter<Player> {
                 readyCheckBox.setOnClickListener(onClickListener);
                 readyCheckBox.setChecked(player.isReady());
             }
+
+            TextView statusTextView = (TextView) v.findViewById(R.id.statusTextView);
+            if (player.hasJoined()) {
+                statusTextView.setText(R.string.joined);
+            } else {
+                statusTextView.setText(R.string.invited);
+            }
         }
 
         return v;

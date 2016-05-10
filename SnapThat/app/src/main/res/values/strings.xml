@@ -14,4 +14,7 @@
     <string name="ready">Ready</string>
     <string name="go">Go!</string>
     <string name="username"><![CDATA[<Username>]]></string>
+    <string name="status"><![CDATA[<Status>]]></string>
+    <string name="joined">Joined</string>
+    <string name="invited">Invited</string>
 </resources>
