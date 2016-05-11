@@ -45,6 +45,7 @@ public class MainActivity
         RealTimeMultiplayer,
         RealTimeMessageReceivedListener,
         RoomStatusUpdateListener,
+        RealTimeMultiplayer.ReliableMessageSentCallback,
         ThingToPhotograph.PostDownloadAPIGuessExecuteListener{
 
     private MainMenuFragment mainMenuFragment;
@@ -232,7 +233,7 @@ public class MainActivity
                     new ByteArrayOutputStream(bitmap.getWidth() * bitmap.getHeight());
             bitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream);
             byte[] message = stream.toByteArray();
-            sendReliableMessage(googleApiClient, null, message, null, null);
+            sendReliableMessage(googleApiClient, this, message, room.getRoomId(), null);
             chooseThemeFragment.setImageTest(bitmap);
             wordSnapFragment.showNextWord();
         }
@@ -245,12 +246,9 @@ public class MainActivity
         Player player = Games.Players.getCurrentPlayer(googleApiClient);
         this.playerData = new PlayerData(player.getPlayerId(),player.getDisplayName());
         String displayName;
-        if (player == null) {
-            Log.w("TAG", "Games.Players.getCurrentPlayer() is NULL!");
-            displayName = "???";
-        } else {
-            displayName = player.getDisplayName();
-        }
+
+        displayName = player.getDisplayName();
+
         Toast.makeText(MainActivity.this, "Welcome " + displayName + "!", Toast.LENGTH_SHORT).show();
         mainMenuFragment.setGreeting(getString(R.string.signed_in));
         mainMenuFragment.setNewGameButtonsClickable(true);
@@ -407,18 +405,16 @@ public class MainActivity
                                    byte[] message, String roomId, String participantId) {
 
         for (Participant p : room.getParticipants()) {
-            //Send the byte[] message to everyone except yourself.
-            if (!p.getParticipantId().equals(playerData.getPlayerID())) {
-                Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, null, message,
-                        room.getRoomId(), p.getParticipantId());
-            }
+            //Send the byte[] message to everyone
+            Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, this, message,
+                    room.getRoomId(), p.getParticipantId());
         }
 
         return 0;
     }
 
     @Override
-    public int sendUnreliableMessage(GoogleApiClient googleApiClient, byte[] bytes, String s, String s1) {
+    public int sendUnreliableMessage(GoogleApiClient googleApiClient, byte[] message, String roomId, String participantId) {
         return 0;
     }
 
@@ -485,6 +481,7 @@ public class MainActivity
     public void onRealTimeMessageReceived(RealTimeMessage realTimeMessage) {
         // get real-time message
         byte[] b = realTimeMessage.getMessageData();
+
         Object receivedObject = null;
 
         try {
@@ -655,6 +652,7 @@ public class MainActivity
         // show error message and return to main screen
         Toast.makeText(MainActivity.this, "You got disconnected.", Toast.LENGTH_SHORT).show();
         getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        newGameMenuFragment.onDestroy();
     }
 
     @Override
@@ -702,7 +700,7 @@ public class MainActivity
         byte[] message = ByteBuffer.allocate(4).putInt(value).array();
 
         // broadcast the new value to the other players.
-        sendReliableMessage(googleApiClient, null, message, null, null);
+        sendReliableMessage(googleApiClient, this, message, room.getRoomId(), null);
     }
 
     public int getValue() {
@@ -714,11 +712,12 @@ public class MainActivity
         try {
             message = ByteArraySerializer.serialize(playerData);
         } catch (IOException e) {
+            Log.e("TAG","Error sending player data.");
             e.printStackTrace();
             return;
         }
         // broadcast the object to the other players.
-        sendReliableMessage(googleApiClient, null, message, null, null);
+        sendReliableMessage(googleApiClient, this, message, room.getRoomId(), null);
     }
 
     public void photoAndSend() {
@@ -736,5 +735,16 @@ public class MainActivity
 
     @Override
     public void postAPIGuess(ThingToPhotograph theThing, boolean accepted, String crappyJsonGuesses) {
+    }
+
+    @Override
+    public void onRealTimeMessageSent(int statusCode, int tokenId, String recipientParticipantId) {
+        if (statusCode == GamesStatusCodes.STATUS_REAL_TIME_MESSAGE_SEND_FAILED) {
+            Log.e("TAG","Error, STATUS_REAL_TIME_MESSAGE_SEND_FAILED (" + statusCode + ")");
+        } else if (statusCode == GamesStatusCodes.STATUS_REAL_TIME_ROOM_NOT_JOINED) {
+            Log.e("TAG","Error, STATUS_REAL_TIME_ROOM_NOT_JOINED (" + statusCode + ")");
+        } else if (statusCode == GamesStatusCodes.STATUS_OK) {
+            Log.i("TAG","Message delivered successfully. (" + statusCode + ")");
+        }
     }
 }
