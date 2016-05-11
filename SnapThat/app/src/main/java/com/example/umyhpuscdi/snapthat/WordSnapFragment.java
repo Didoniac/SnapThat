@@ -3,6 +3,8 @@ package com.example.umyhpuscdi.snapthat;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,7 +72,8 @@ public class WordSnapFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //120000 = 2 minuters timer. Andra parametern (1000) gör så att det dröjer 1 sekund mellan varje onTick.
-        timer = new CountDownTimer(120000, 1000) {
+        //10000 = 10 sek for testing
+        timer = new CountDownTimer(10000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 try {
@@ -109,6 +112,14 @@ public class WordSnapFragment extends Fragment {
                     String tempTimeLeftString = getString(R.string.time_left);
                     tempTimeLeftString += "00:00";
                     timeLeftTextView.setText(tempTimeLeftString);
+
+                    ResultFragment resultFragment = new ResultFragment();
+                    mainActivity.setResultFragment(resultFragment);
+
+                    FragmentTransaction fragmentTransaction =
+                            mainActivity.getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.replace(R.id.mainLayout, resultFragment).commit();
                 } catch (IllegalStateException e) {
                     cancel();
                 }

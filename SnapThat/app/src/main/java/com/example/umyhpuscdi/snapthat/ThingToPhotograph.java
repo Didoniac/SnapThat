@@ -29,6 +29,10 @@ public class ThingToPhotograph{
     private Uri mFilePath;
     private PostDownloadAPIGuessExecuteListener mListener;
 
+    public String getBestGuess() {
+        return mBestGuess;
+    }
+
     public interface PostDownloadAPIGuessExecuteListener{
         void postAPIGuess(ThingToPhotograph self, boolean accepted, String bestGuess);
     }

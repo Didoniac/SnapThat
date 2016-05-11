@@ -51,6 +51,7 @@ public class MainActivity
     private ChooseThemeFragment chooseThemeFragment;
     private WordSnapFragment wordSnapFragment;
     private NewGameMenuFragment newGameMenuFragment;
+    private ResultFragment resultFragment;
 
     private GoogleApiClient googleApiClient;
 
@@ -96,6 +97,7 @@ public class MainActivity
     private Intent pictureIntent;
 
     protected ArrayAdapter readyUpListViewAdapter;
+    protected ArrayAdapter resultsListViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -685,6 +687,10 @@ public class MainActivity
         this.wordSnapFragment = wordSnapFragment;
     }
 
+    public void setResultFragment(ResultFragment resultFragment) {
+        this.resultFragment = resultFragment;
+    }
+
     public ArrayList<PlayerData> getPlayerDatas() {
         return playerDatas;
     }
@@ -699,4 +705,6 @@ public class MainActivity
         }
         Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
     }
+
+
 }

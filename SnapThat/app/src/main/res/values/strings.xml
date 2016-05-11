@@ -17,6 +17,9 @@
     <string name="status"><![CDATA[<Status>]]></string>
     <string name="joined">Joined</string>
     <string name="invited">Invited</string>
+    <string name="results_previous_button">prev</string>
+    <string name="results_next_button">next</string>
+    <string name="results_score_button">score</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
