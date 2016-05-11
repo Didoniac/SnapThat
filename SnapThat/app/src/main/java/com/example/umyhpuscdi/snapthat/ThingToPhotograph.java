@@ -30,7 +30,7 @@ public class ThingToPhotograph{
     private PostDownloadAPIGuessExecuteListener mListener;
 
     public interface PostDownloadAPIGuessExecuteListener{
-        void postAPIGuess(ThingToPhotograph self, boolean accepted, String crappyJsonGuesses);
+        void postAPIGuess(ThingToPhotograph self, boolean accepted, String bestGuess);
     }
 
     public String getmSearchTerm() {
@@ -131,13 +131,12 @@ public class ThingToPhotograph{
         }
     }
 
-    //TODO extract computermouse, not empty string from "score":"99.34%", "text":"computermouse"
     private void setBestGuessFromJson(String jsonStringWithoutImage){
-        String bestGuessPlusRest = jsonStringWithoutImage.substring(7);
-        int firstTextIndex = bestGuessPlusRest.indexOf("text\":");
+        int firstTextIndex = jsonStringWithoutImage.indexOf("text\":");
         int firstWordIndex = firstTextIndex + 7;
-        int firstWordEndIndex = bestGuessPlusRest.substring(firstWordIndex).indexOf('"') - 1;
-        mBestGuess = bestGuessPlusRest.substring(firstWordIndex, firstWordEndIndex);
+        String firstWordPlusJunk = jsonStringWithoutImage.substring(firstWordIndex);
+        int firstWordEndIndex = firstWordPlusJunk.indexOf('"');
+        mBestGuess = firstWordPlusJunk.substring(0, firstWordEndIndex);
     }
 
     private class PicToWordAsyncTask extends AsyncTask<File, Void, String>{

@@ -690,12 +690,12 @@ public class MainActivity
     }
 
     @Override
-    public void postAPIGuess(ThingToPhotograph theThing, boolean accepted, String crappyJsonGuesses) {
+    public void postAPIGuess(ThingToPhotograph theThing, boolean accepted, String bestGuess) {
         String toastText;
         if(accepted) {
             toastText = "YES!";
         }else {
-            toastText = crappyJsonGuesses.substring(0, 10);
+            toastText = bestGuess;
         }
         Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
     }
