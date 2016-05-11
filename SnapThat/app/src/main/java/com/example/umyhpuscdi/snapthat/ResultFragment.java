@@ -35,7 +35,7 @@ public class ResultFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
-        View rootView = layoutInflater.inflate(R.layout.newgamemenufragment_layout, container, false);
+        View rootView = layoutInflater.inflate(R.layout.fragment_results, container, false);
         mainActivity = (MainActivity) getActivity();
 
         themeTextView = (TextView) rootView.findViewById(R.id.results_theme_textview);
