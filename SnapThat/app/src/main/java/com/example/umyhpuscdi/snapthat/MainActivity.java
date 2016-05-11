@@ -482,20 +482,13 @@ public class MainActivity
         // get real-time message
         byte[] b = realTimeMessage.getMessageData();
 
-        Object receivedObject = null;
         PlayerData receivedPlayerData = null;
 
         try {
-            receivedObject = ByteArraySerializer.deserialize(b);
+            receivedPlayerData = ByteArrayToPlayerDataSerializer.deserialize(b);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            receivedPlayerData = (PlayerData) receivedObject;
-        } catch (ClassCastException e) {
             e.printStackTrace();
         }
 
@@ -716,7 +709,7 @@ public class MainActivity
     public void sendPlayerDataToOthers() {
         byte[] message;
         try {
-            message = ByteArraySerializer.serialize(playerData);
+            message = ByteArrayToPlayerDataSerializer.serialize(playerData);
         } catch (IOException e) {
             Log.e("TAG","Error sending player data.");
             e.printStackTrace();

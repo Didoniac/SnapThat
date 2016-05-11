@@ -11,11 +11,11 @@ import java.io.ObjectOutputStream;
 /**
  * Created by umyhpuscdi on 2016-05-10.
  */
-public abstract class ByteArraySerializer {
-    public static byte[] serialize(Object obj) throws IOException {
+public abstract class ByteArrayToPlayerDataSerializer {
+    public static byte[] serialize(PlayerData playerData) throws IOException {
 
         Gson gson = new Gson();
-        String jsonString = gson.toJson(obj);
+        String jsonString = gson.toJson(playerData);
         return jsonString.getBytes();
 
     /*
@@ -28,10 +28,10 @@ public abstract class ByteArraySerializer {
         */
     }
 
-    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+    public static PlayerData deserialize(byte[] data) throws IOException, ClassNotFoundException {
 
         Gson gson = new Gson();
-        return gson.fromJson(new String(data), Object.class);
+        return gson.fromJson(new String(data), PlayerData.class);
 
     /*
         OLD stuff
