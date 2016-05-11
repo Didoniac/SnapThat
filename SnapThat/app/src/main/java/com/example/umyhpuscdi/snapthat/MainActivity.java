@@ -483,6 +483,7 @@ public class MainActivity
         byte[] b = realTimeMessage.getMessageData();
 
         Object receivedObject = null;
+        PlayerData receivedPlayerData = null;
 
         try {
             receivedObject = ByteArraySerializer.deserialize(b);
@@ -492,8 +493,13 @@ public class MainActivity
             e.printStackTrace();
         }
 
-        if (receivedObject != null && receivedObject instanceof PlayerData) {
-            PlayerData receivedPlayerData = (PlayerData) receivedObject;
+        try {
+            receivedPlayerData = (PlayerData) receivedObject;
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+        }
+
+        if (receivedPlayerData != null) {
             //Find the player and change it to the new object.
             for (int i = 0; i < playerDatas.size(); i++) {
                 if (receivedPlayerData.getPlayerID().equals(playerDatas.get(i).getPlayerID())) {
