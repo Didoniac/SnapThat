@@ -23,6 +23,7 @@ public class ThingToPhotograph{
     private String mTitle;
     private boolean isPhotographed = false;
     private boolean uploadedAndChecked = false;
+    private String mBestGuess = "unchecked";
     private boolean isUploading = false;
     private boolean accepted = false;
     private Uri mFilePath;
@@ -118,7 +119,8 @@ public class ThingToPhotograph{
         }
         uploadedAndChecked = true;
         isUploading = false;
-        mListener.postAPIGuess(this, accepted, jsonString);
+        setBestGuessFromJson(jsonString);
+        mListener.postAPIGuess(this, accepted, mBestGuess);
     }
 
     private boolean doesJsonContainWord(String jsonString){
@@ -129,7 +131,14 @@ public class ThingToPhotograph{
         }
     }
 
-    private String bestGuessFromJson(String jsonString)
+    //TODO extract computermouse, not empty string from "score":"99.34%", "text":"computermouse"
+    private void setBestGuessFromJson(String jsonStringWithoutImage){
+        String bestGuessPlusRest = jsonStringWithoutImage.substring(7);
+        int firstTextIndex = bestGuessPlusRest.indexOf("text\":");
+        int firstWordIndex = firstTextIndex + 7;
+        int firstWordEndIndex = bestGuessPlusRest.substring(firstWordIndex).indexOf('"') - 1;
+        mBestGuess = bestGuessPlusRest.substring(firstWordIndex, firstWordEndIndex);
+    }
 
     private class PicToWordAsyncTask extends AsyncTask<File, Void, String>{
 
