@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import com.example.umyhpuscdi.snapthat.Serializables.ReadySerializable;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
@@ -33,6 +35,7 @@ import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListene
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +48,7 @@ public class MainActivity
         RealTimeMultiplayer,
         RealTimeMessageReceivedListener,
         RoomStatusUpdateListener,
+        RealTimeMultiplayer.ReliableMessageSentCallback,
         ThingToPhotograph.PostDownloadAPIGuessExecuteListener{
 
     private MainMenuFragment mainMenuFragment;
@@ -53,7 +57,7 @@ public class MainActivity
     private NewGameMenuFragment newGameMenuFragment;
     private ResultFragment resultFragment;
 
-    private GoogleApiClient googleApiClient;
+    protected GoogleApiClient googleApiClient;
 
     //Photo
     private static final int IMG_TAKEN_CODE = 100;
@@ -63,6 +67,8 @@ public class MainActivity
     private static final int RC_UNUSED = 5001;
     private static final int RC_SIGN_IN = 9001;
 
+    protected static final String startGameMessage = "Start game";
+
     // request code for the "select players" UI
     // can be any number as long as it's unique
     private final static int RC_SELECT_PLAYERS = 10000;
@@ -71,7 +77,7 @@ public class MainActivity
     private final static int RC_INVITATION_INBOX = 10001;
 
     // at least 2 players required for our game
-    private final static int MIN_PLAYERS = 2;
+    protected final static int MIN_PLAYERS = 2;
     private final static int MAX_PLAYERS = 4;
 
     // Are we currently resolving a connection failure?
@@ -86,7 +92,7 @@ public class MainActivity
     //All players in the room
     private ArrayList<PlayerData> playerDatas = new ArrayList<>();
 
-    private Room room;
+    protected Room room;
 
     private int value = 0;
 
@@ -221,7 +227,7 @@ public class MainActivity
             // go to game screen
             newGameMenuFragment = new NewGameMenuFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.addToBackStack("MainMenuFragment");
             fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
 
         } else if(requestCode == IMG_TAKEN_CODE){
@@ -245,12 +251,9 @@ public class MainActivity
         Player player = Games.Players.getCurrentPlayer(googleApiClient);
         this.playerData = new PlayerData(player.getPlayerId(),player.getDisplayName());
         String displayName;
-        if (player == null) {
-            Log.w("TAG", "Games.Players.getCurrentPlayer() is NULL!");
-            displayName = "???";
-        } else {
-            displayName = player.getDisplayName();
-        }
+
+        displayName = player.getDisplayName();
+
         Toast.makeText(MainActivity.this, "Welcome " + displayName + "!", Toast.LENGTH_SHORT).show();
         mainMenuFragment.setGreeting(getString(R.string.signed_in));
         mainMenuFragment.setNewGameButtonsClickable(true);
@@ -271,7 +274,7 @@ public class MainActivity
 
                 // go to game screen
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.addToBackStack("MainMenuFragment");
                 newGameMenuFragment = new NewGameMenuFragment();
                 fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
             }
@@ -322,14 +325,13 @@ public class MainActivity
 
             //show error message, return to main screen.
             Toast.makeText(MainActivity.this, "Error in onRoomCreated!", Toast.LENGTH_SHORT).show();
-            onBackPressed();
+            getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
 
     @Override
     public void onJoinedRoom(int statusCode, Room room) {
         if (statusCode == GamesStatusCodes.STATUS_OK) {
-
             this.room = room;
 
         } else {
@@ -338,7 +340,7 @@ public class MainActivity
 
             //show error message, return to main screen.
             Toast.makeText(MainActivity.this, "Error in onJoinedRoom!", Toast.LENGTH_SHORT).show();
-            onBackPressed();
+            getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
 
@@ -357,7 +359,7 @@ public class MainActivity
 
             //show error message, return to main screen.
             Toast.makeText(MainActivity.this, "Error in onRoomConnected!", Toast.LENGTH_SHORT).show();
-            onBackPressed();
+            getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
 
@@ -394,9 +396,9 @@ public class MainActivity
     }
 
     @Override
-    public void leave(GoogleApiClient googleApiClient, RoomUpdateListener roomUpdateListener, String s) {
+    public void leave(GoogleApiClient googleApiClient, RoomUpdateListener roomUpdateListener, String roomId) {
         // leave room
-        Games.RealTimeMultiplayer.leave(googleApiClient, null, room.getRoomId());
+        Games.RealTimeMultiplayer.leave(googleApiClient, roomUpdateListener, roomId);
 
         // remove the flag that keeps the screen on
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -408,18 +410,16 @@ public class MainActivity
                                    byte[] message, String roomId, String participantId) {
 
         for (Participant p : room.getParticipants()) {
-            //Send the byte[] message to everyone except yourself.
-            if (!p.getParticipantId().equals(playerData.getPlayerID())) {
-                Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, null, message,
-                        room.getRoomId(), p.getParticipantId());
-            }
+            //Send the byte[] message to everyone
+            Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, this, message,
+                    room.getRoomId(), p.getParticipantId());
         }
 
         return 0;
     }
 
     @Override
-    public int sendUnreliableMessage(GoogleApiClient googleApiClient, byte[] bytes, String s, String s1) {
+    public int sendUnreliableMessage(GoogleApiClient googleApiClient, byte[] message, String roomId, String participantId) {
         return 0;
     }
 
@@ -458,7 +458,7 @@ public class MainActivity
 
         // go to game screen
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.addToBackStack("MainMenuFragment");
         newGameMenuFragment = new NewGameMenuFragment();
         fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
     }
@@ -487,9 +487,41 @@ public class MainActivity
         // get real-time message
         byte[] b = realTimeMessage.getMessageData();
 
-        // process message
-        Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
-        chooseThemeFragment.setImageTest(bitmap);
+        Object receivedObject = null;
+
+        try {
+            receivedObject = Serializer.deserialize(b);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (receivedObject != null) {
+            if (receivedObject instanceof ReadySerializable) {
+                ReadySerializable receivedReadySerializable = (ReadySerializable) receivedObject;
+                //Find the player and change it to the new object.
+                for (int i = 0; i < playerDatas.size(); i++) {
+                    if (receivedReadySerializable.getPlayerID().equals(playerDatas.get(i).getPlayerID())) {
+                        playerDatas.get(i).setReady(receivedReadySerializable.isReady());
+                    }
+                }
+                readyUpListViewAdapter.notifyDataSetChanged();
+            }
+        } else {
+            String receivedString = new String(b);
+            if (receivedString.equals(startGameMessage)) {
+                WordSnapFragment wordSnapFragment = new WordSnapFragment();
+                setWordSnapFragment(wordSnapFragment);
+                FragmentTransaction fragmentTransaction =
+                        getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+            }
+            // process message
+    //        Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
+    //        chooseThemeFragment.setImageTest(bitmap);
+        }
 
         /*Old testing of sending integers
         value = byteArrayToInt(b);
@@ -510,20 +542,28 @@ public class MainActivity
     // returns whether there are enough players to start the game
     public boolean shouldStartGame() {
         int connectedPlayers = 0;
-        for (Participant p : room.getParticipants()) {
-            if (p.isConnectedToRoom()) ++connectedPlayers;
+        if (room != null) {
+            for (Participant p : room.getParticipants()) {
+                if (p.isConnectedToRoom()) ++connectedPlayers;
+            }
         }
         return connectedPlayers >= MIN_PLAYERS;
     }
 
-    // Returns whether the room is in a state where the game should be canceled.
-/*    public boolean shouldCancelGame(Room room) {
-        // TODO: Your game-specific cancellation logic here. For example, you might decide to
+    /**
+     * Returns whether the room is in a state where the game should be canceled.
+     */
+    public boolean shouldCancelGame(Room room) {
+        // Your game-specific cancellation logic here. For example, you might decide to
         // cancel the game if enough people have declined the invitation or left the room.
         // You can check a participant's status with Participant.getStatus().
         // (Also, your UI should have a Cancel button that cancels the game too)
+        if (room.getParticipants().size() < MIN_PLAYERS) {
+            return true;
+        } else {
+            return false;
+        }
     }
-*/
 
     @Override
     public void onRoomConnecting(Room room) {
@@ -579,12 +619,10 @@ public class MainActivity
 
             if (existsInListAlreadyAtPosition != -1) {
                 PlayerData playerData = playerDatas.get(existsInListAlreadyAtPosition);
-                playerData.setHasJoined(true);
                 readyUpListViewAdapter.notifyDataSetChanged();
             } else {
                 PlayerData playerData
                         = new PlayerData(participant.getParticipantId(), participant.getDisplayName());
-                playerData.setHasJoined(true);
                 playerDatas.add(playerData);
                 readyUpListViewAdapter.notifyDataSetChanged();
             }
@@ -618,16 +656,21 @@ public class MainActivity
                 playerDatas.add(new PlayerData(participants.get(i).getParticipantId(),participants.get(i).getDisplayName()));
             }
         }
+        if (!playerDatas.contains(playerData)) {
+            playerDatas.add(0,playerData);
+        }
+        readyUpListViewAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onDisconnectedFromRoom(Room room) {
         // leave the room
-        leave(googleApiClient, null, room.getRoomId());
+        leave(googleApiClient, this, room.getRoomId());
 
         // show error message and return to main screen
         Toast.makeText(MainActivity.this, "You got disconnected.", Toast.LENGTH_SHORT).show();
-        onBackPressed();
+        getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        newGameMenuFragment.onDestroy();
     }
 
     @Override
@@ -650,6 +693,10 @@ public class MainActivity
             stringToDisplay += "\n" + participant.getDisplayName();
         }
         Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
+
+        if (shouldCancelGame(room)) {
+            leave(googleApiClient, this, room.getRoomId());
+        }
     }
 
     @Override
@@ -671,11 +718,25 @@ public class MainActivity
         byte[] message = ByteBuffer.allocate(4).putInt(value).array();
 
         // broadcast the new value to the other players.
-        sendReliableMessage(googleApiClient, null, message, null, null);
+        sendReliableMessage(googleApiClient, this, message, room.getRoomId(), null);
     }
 
     public int getValue() {
         return value;
+    }
+
+    public void sendReadyDataToOthers() {
+        byte[] message;
+        ReadySerializable readySerializable = new ReadySerializable(playerData);
+        try {
+            message = Serializer.serialize(readySerializable);
+        } catch (IOException e) {
+            Log.e("TAG","Error sending player data.");
+            e.printStackTrace();
+            return;
+        }
+        // broadcast the object to the other players.
+        sendReliableMessage(googleApiClient, this, message, room.getRoomId(), null);
     }
 
     public void photoAndSend(int indexOfCurrentWord) {
@@ -706,5 +767,14 @@ public class MainActivity
         Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
     }
 
-
+    @Override
+    public void onRealTimeMessageSent(int statusCode, int tokenId, String recipientParticipantId) {
+        if (statusCode == GamesStatusCodes.STATUS_REAL_TIME_MESSAGE_SEND_FAILED) {
+            Log.e("TAG","Error, STATUS_REAL_TIME_MESSAGE_SEND_FAILED (" + statusCode + ")");
+        } else if (statusCode == GamesStatusCodes.STATUS_REAL_TIME_ROOM_NOT_JOINED) {
+            Log.e("TAG","Error, STATUS_REAL_TIME_ROOM_NOT_JOINED (" + statusCode + ")");
+        } else if (statusCode == GamesStatusCodes.STATUS_OK) {
+            Log.i("TAG","Message delivered successfully. (" + statusCode + ")");
+        }
+    }
 }

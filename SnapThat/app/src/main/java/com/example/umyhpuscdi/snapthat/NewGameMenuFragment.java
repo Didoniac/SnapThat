@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * Created by umyhpuscdi on 2016-05-09.
@@ -27,7 +28,8 @@ public class NewGameMenuFragment extends Fragment {
         goButton = (Button) rootView.findViewById(R.id.goButton);
         readyUpListView = (ListView) rootView.findViewById(R.id.readyUpListView);
 
-        mainActivity.readyUpListViewAdapter = new ReadyUpListAdapter(mainActivity, R.layout.readyup_list_item, mainActivity.getPlayerDatas());
+        mainActivity.readyUpListViewAdapter
+                = new ReadyUpListAdapter(mainActivity, R.layout.readyup_list_item, mainActivity.getPlayerDatas(), mainActivity);
         readyUpListView.setAdapter(mainActivity.readyUpListViewAdapter);
 
         chooseThemeButton.setOnClickListener(new View.OnClickListener() {
@@ -43,12 +45,18 @@ public class NewGameMenuFragment extends Fragment {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WordSnapFragment wordSnapFragment = new WordSnapFragment();
-                mainActivity.setWordSnapFragment(wordSnapFragment);
-                FragmentTransaction fragmentTransaction =
-                        mainActivity.getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+                if (mainActivity.shouldStartGame()) {
+
+                    mainActivity.sendReliableMessage(mainActivity.googleApiClient,mainActivity,MainActivity.startGameMessage.getBytes(),mainActivity.room.getRoomId(), null);
+                    WordSnapFragment wordSnapFragment = new WordSnapFragment();
+                    mainActivity.setWordSnapFragment(wordSnapFragment);
+                    FragmentTransaction fragmentTransaction =
+                    mainActivity.getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+                } else {
+                    Toast.makeText(getContext(), "At least " + MainActivity.MIN_PLAYERS + "players is required to play.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

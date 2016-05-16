@@ -1,10 +1,17 @@
 package com.example.umyhpuscdi.snapthat;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by umyhpuscdi on 2016-05-09.
  */
+
 public class PlayerData {
 
     private ArrayList<ThingToPhotograph> thingsToPhotograph;
@@ -12,9 +19,6 @@ public class PlayerData {
     private boolean ready;
     private int score, numberOfPhotos;
     private String playerID;
-
-    //false: invited but hasn't joined, true: joined
-    private boolean hasJoined = false;
 
     public PlayerData(String playerID, String username) {
         this.playerID = playerID;
@@ -67,13 +71,5 @@ public class PlayerData {
 
     public void setPlayerID(String playerID) {
         this.playerID = playerID;
-    }
-
-    public boolean hasJoined() {
-        return hasJoined;
-    }
-
-    public void setHasJoined(boolean hasJoined) {
-        this.hasJoined = hasJoined;
     }
 }
