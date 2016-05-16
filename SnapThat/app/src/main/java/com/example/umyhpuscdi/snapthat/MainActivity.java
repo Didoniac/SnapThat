@@ -505,21 +505,20 @@ public class MainActivity
                     }
                 }
                 readyUpListViewAdapter.notifyDataSetChanged();
-            } else if (receivedObject instanceof String) {
-                String receivedString = (String) receivedObject;
-                if (receivedString.equals(startGameMessage)) {
-                    WordSnapFragment wordSnapFragment = new WordSnapFragment();
-                    setWordSnapFragment(wordSnapFragment);
-                    FragmentTransaction fragmentTransaction =
-                            getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
-                }
             }
         } else {
+            String receivedString = new String(b);
+            if (receivedString.equals(startGameMessage)) {
+                WordSnapFragment wordSnapFragment = new WordSnapFragment();
+                setWordSnapFragment(wordSnapFragment);
+                FragmentTransaction fragmentTransaction =
+                        getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+            }
             // process message
-            Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
-            chooseThemeFragment.setImageTest(bitmap);
+    //        Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
+    //        chooseThemeFragment.setImageTest(bitmap);
         }
 
         /*Old testing of sending integers
