@@ -1,5 +1,7 @@
 package com.example.umyhpuscdi.snapthat.Serializables;
 
+import com.example.umyhpuscdi.snapthat.PlayerData;
+
 import java.io.Serializable;
 
 /**
@@ -13,9 +15,9 @@ public class ReadySerializable implements Serializable {
     //For serialization
     private static final long serialVersionUID =-3016869652413998727L;
 
-    public ReadySerializable(String playerID, boolean ready) {
-        this.playerID = playerID;
-        this.ready = ready;
+    public ReadySerializable(PlayerData playerData) {
+        this.playerID = playerData.getPlayerID();
+        this.ready = playerData.isReady();
     }
 
     public String getPlayerID() {

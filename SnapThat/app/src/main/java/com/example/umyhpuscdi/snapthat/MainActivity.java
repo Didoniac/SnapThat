@@ -714,8 +714,9 @@ public class MainActivity
 
     public void sendPlayerDataToOthers() {
         byte[] message;
+        ReadySerializable readySerializable = new ReadySerializable(playerData);
         try {
-            message = Serializer.serialize(playerData);
+            message = Serializer.serialize(readySerializable);
         } catch (IOException e) {
             Log.e("TAG","Error sending player data.");
             e.printStackTrace();
