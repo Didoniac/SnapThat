@@ -32,9 +32,8 @@ public abstract class Serializer {
     public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
 
         /*
-            Gson alternative
-
             Gson alternative to serialization
+
             Gson gson = new Gson();
             return gson.fromJson(new String(data), PlayerData.class);
         */

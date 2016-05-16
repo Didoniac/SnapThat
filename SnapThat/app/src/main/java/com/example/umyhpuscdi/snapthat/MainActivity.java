@@ -64,6 +64,8 @@ public class MainActivity
     private static final int RC_UNUSED = 5001;
     private static final int RC_SIGN_IN = 9001;
 
+    protected static final String startGameMessage = "Start game";
+
     // request code for the "select players" UI
     // can be any number as long as it's unique
     private final static int RC_SELECT_PLAYERS = 10000;
@@ -503,6 +505,16 @@ public class MainActivity
                     }
                 }
                 readyUpListViewAdapter.notifyDataSetChanged();
+            } else if (receivedObject instanceof String) {
+                String receivedString = (String) receivedObject;
+                if (receivedString.equals(startGameMessage)) {
+                    WordSnapFragment wordSnapFragment = new WordSnapFragment();
+                    setWordSnapFragment(wordSnapFragment);
+                    FragmentTransaction fragmentTransaction =
+                            getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+                }
             }
         } else {
             // process message
@@ -712,7 +724,7 @@ public class MainActivity
         return value;
     }
 
-    public void sendPlayerDataToOthers() {
+    public void sendReadyDataToOthers() {
         byte[] message;
         ReadySerializable readySerializable = new ReadySerializable(playerData);
         try {
