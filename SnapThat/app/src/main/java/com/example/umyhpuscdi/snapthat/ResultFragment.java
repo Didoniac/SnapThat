@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -41,10 +43,13 @@ public class ResultFragment extends Fragment {
         themeTextView = (TextView) rootView.findViewById(R.id.results_theme_textview);
         wordTextView = (TextView) rootView.findViewById(R.id.results_word_textview);
         listView = (ListView) rootView.findViewById(R.id.results_listview);
-
         prevButton = (Button) rootView.findViewById(R.id.results_prev_button);
         nextButton = (Button) rootView.findViewById(R.id.results_next_button);
         scoreButton = (Button) rootView.findViewById(R.id.results_score_button);
+
+        themeTextView.setText("Bodyparts?");
+        String word = mainActivity.playerData.getThingsToPhotograph().get(mCurrentWordIndex).getmTitle();
+        wordTextView.setText(word);
 
         mainActivity.resultsListViewAdapter = new ResultsListAdapter(mainActivity, R.layout.listitem_results, mainActivity.getPlayerDatas(), mCurrentWordIndex);
         listView.setAdapter(mainActivity.resultsListViewAdapter);
