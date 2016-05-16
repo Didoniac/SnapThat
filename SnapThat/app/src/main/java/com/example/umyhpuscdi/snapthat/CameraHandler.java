@@ -43,8 +43,9 @@ public class CameraHandler {
     }
 
     private static void checkExternalState(Context context) {
-        if(!Environment.getExternalStorageState().equals("MEDIA_MOUNTED")){
-            Toast.makeText(context, "External storage not found, Environment.getExternalStorageState()", Toast.LENGTH_LONG).show();
+        //TODO change "mounted" to some static variable somewhere like xxx.MEDIAMOUNTED
+        if(!Environment.getExternalStorageState().equals("mounted")){
+            Toast.makeText(context, "External storage not found," + Environment.getExternalStorageState(), Toast.LENGTH_LONG).show();
         }
     }
 
