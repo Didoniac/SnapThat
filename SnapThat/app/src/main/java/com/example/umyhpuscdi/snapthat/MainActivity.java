@@ -15,6 +15,7 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import com.example.umyhpuscdi.snapthat.Serializables.ReadySerializable;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
@@ -71,7 +72,7 @@ public class MainActivity
     private final static int RC_INVITATION_INBOX = 10001;
 
     // at least 2 players required for our game
-    private final static int MIN_PLAYERS = 2;
+    protected final static int MIN_PLAYERS = 2;
     private final static int MAX_PLAYERS = 4;
 
     // Are we currently resolving a connection failure?
@@ -482,24 +483,27 @@ public class MainActivity
         // get real-time message
         byte[] b = realTimeMessage.getMessageData();
 
-        PlayerData receivedPlayerData = null;
+        Object receivedObject = null;
 
         try {
-            receivedPlayerData = ByteArrayToPlayerDataSerializer.deserialize(b);
+            receivedObject = Serializer.deserialize(b);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        if (receivedPlayerData != null) {
-            //Find the player and change it to the new object.
-            for (int i = 0; i < playerDatas.size(); i++) {
-                if (receivedPlayerData.getPlayerID().equals(playerDatas.get(i).getPlayerID())) {
-                    playerDatas.set(i, receivedPlayerData);
+        if (receivedObject != null) {
+            if (receivedObject instanceof ReadySerializable) {
+                ReadySerializable receivedReadySerializable = (ReadySerializable) receivedObject;
+                //Find the player and change it to the new object.
+                for (int i = 0; i < playerDatas.size(); i++) {
+                    if (receivedReadySerializable.getPlayerID().equals(playerDatas.get(i).getPlayerID())) {
+                        playerDatas.get(i).setReady(receivedReadySerializable.isReady());
+                    }
                 }
+                readyUpListViewAdapter.notifyDataSetChanged();
             }
-            readyUpListViewAdapter.notifyDataSetChanged();
         } else {
             // process message
             Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
@@ -525,8 +529,10 @@ public class MainActivity
     // returns whether there are enough players to start the game
     public boolean shouldStartGame() {
         int connectedPlayers = 0;
-        for (Participant p : room.getParticipants()) {
-            if (p.isConnectedToRoom()) ++connectedPlayers;
+        if (room != null) {
+            for (Participant p : room.getParticipants()) {
+                if (p.isConnectedToRoom()) ++connectedPlayers;
+            }
         }
         return connectedPlayers >= MIN_PLAYERS;
     }
@@ -709,7 +715,7 @@ public class MainActivity
     public void sendPlayerDataToOthers() {
         byte[] message;
         try {
-            message = ByteArrayToPlayerDataSerializer.serialize(playerData);
+            message = Serializer.serialize(playerData);
         } catch (IOException e) {
             Log.e("TAG","Error sending player data.");
             e.printStackTrace();

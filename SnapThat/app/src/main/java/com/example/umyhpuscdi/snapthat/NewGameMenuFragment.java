@@ -53,7 +53,7 @@ public class NewGameMenuFragment extends Fragment {
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
                 } else {
-                    Toast.makeText(getContext(), "At least 2 players is required to play.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "At least " + MainActivity.MIN_PLAYERS + "players is required to play.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

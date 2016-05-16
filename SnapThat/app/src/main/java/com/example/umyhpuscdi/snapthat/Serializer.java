@@ -11,34 +11,37 @@ import java.io.ObjectOutputStream;
 /**
  * Created by umyhpuscdi on 2016-05-10.
  */
-public abstract class ByteArrayToPlayerDataSerializer {
-    public static byte[] serialize(PlayerData playerData) throws IOException {
+public abstract class Serializer {
+    public static byte[] serialize(Object obj) throws IOException {
 
-        Gson gson = new Gson();
-        String jsonString = gson.toJson(playerData);
-        return jsonString.getBytes();
+        /*
+            Gson alternative to serialization
 
-    /*
-        OLD stuff
+            Gson gson = new Gson();
+            String jsonString = gson.toJson(playerData);
+            return jsonString.getBytes();
+        */
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream os = new ObjectOutputStream(out);
         os.writeObject(obj);
         return out.toByteArray();
-        */
+
     }
 
-    public static PlayerData deserialize(byte[] data) throws IOException, ClassNotFoundException {
+    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
 
-        Gson gson = new Gson();
-        return gson.fromJson(new String(data), PlayerData.class);
+        /*
+            Gson alternative
 
-    /*
-        OLD stuff
+            Gson alternative to serialization
+            Gson gson = new Gson();
+            return gson.fromJson(new String(data), PlayerData.class);
+        */
 
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(in);
         return is.readObject();
-        */
+
     }
 }

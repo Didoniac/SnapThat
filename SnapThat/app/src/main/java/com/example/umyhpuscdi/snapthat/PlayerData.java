@@ -12,16 +12,13 @@ import java.util.ArrayList;
  * Created by umyhpuscdi on 2016-05-09.
  */
 
-public class PlayerData implements Serializable {
+public class PlayerData {
 
     private ArrayList<ThingToPhotograph> thingsToPhotograph;
     private String username;
     private boolean ready;
     private int score, numberOfPhotos;
     private String playerID;
-
-    //For serialization
-    private static final long serialVersionUID =-3016869652413998727L;
 
     public PlayerData(String playerID, String username) {
         this.playerID = playerID;
