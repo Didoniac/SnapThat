@@ -23,7 +23,7 @@ public class ReadyUpListAdapter extends ArrayAdapter<PlayerData> {
             boolean isChecked = ((CheckBox)v).isChecked();
             mainActivity.playerData.setReady(isChecked);
             //send message to the other players that the player has readied up!
-            mainActivity.sendPlayerDataToOthers();
+            mainActivity.sendReadyDataToOthers();
         }
     };
 
