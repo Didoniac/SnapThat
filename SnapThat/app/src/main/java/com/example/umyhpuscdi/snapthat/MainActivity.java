@@ -54,7 +54,7 @@ public class MainActivity
     private WordSnapFragment wordSnapFragment;
     private NewGameMenuFragment newGameMenuFragment;
 
-    private GoogleApiClient googleApiClient;
+    protected GoogleApiClient googleApiClient;
 
     //Photo
     private static final int IMG_TAKEN_CODE = 100;
@@ -63,6 +63,8 @@ public class MainActivity
     private static final int RC_RESOLVE = 5000;
     private static final int RC_UNUSED = 5001;
     private static final int RC_SIGN_IN = 9001;
+
+    protected static final String startGameMessage ="Start game";
 
     // request code for the "select players" UI
     // can be any number as long as it's unique
@@ -87,7 +89,7 @@ public class MainActivity
     //All players in the room
     private ArrayList<PlayerData> playerDatas = new ArrayList<>();
 
-    private Room room;
+    protected Room room;
 
     private int value = 0;
 
