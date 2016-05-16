@@ -54,7 +54,7 @@ public class MainActivity
     private WordSnapFragment wordSnapFragment;
     private NewGameMenuFragment newGameMenuFragment;
 
-    private GoogleApiClient googleApiClient;
+    protected GoogleApiClient googleApiClient;
 
     //Photo
     private static final int IMG_TAKEN_CODE = 100;
@@ -89,7 +89,7 @@ public class MainActivity
     //All players in the room
     private ArrayList<PlayerData> playerDatas = new ArrayList<>();
 
-    private Room room;
+    protected Room room;
 
     private int value = 0;
 
