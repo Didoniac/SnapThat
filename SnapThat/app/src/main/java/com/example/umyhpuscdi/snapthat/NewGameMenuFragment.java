@@ -18,7 +18,8 @@ import android.widget.Toast;
 public class NewGameMenuFragment extends Fragment {
 
     private MainActivity mainActivity;
-    private Button chooseThemeButton, goButton;
+    private Button chooseThemeButton;
+    protected Button goButton;
     private ListView readyUpListView;
     private boolean beingDestroyed = false;
     protected TextView infoMessageTextView;

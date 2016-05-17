@@ -62,11 +62,11 @@ public class MainMenuFragment extends Fragment {
         signedInOrOutTextView.setText(string);
     }
 
-    public void setNewGameButtonsClickable(boolean clickable) {
+    public void setNewGameButtonsEnabled(boolean enabled) {
         try {
-            quickGameButton.setClickable(clickable);
-            invitePlayersButton.setClickable(clickable);
-            showInvitationsButton.setClickable(clickable);
+            quickGameButton.setEnabled(enabled);
+            invitePlayersButton.setEnabled(enabled);
+            showInvitationsButton.setEnabled(enabled);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -77,10 +77,10 @@ public class MainMenuFragment extends Fragment {
         super.onResume();
         if(mainActivity.isSignedIn()) {
             signedInOrOutTextView.setText(getString(R.string.signed_in));
-            setNewGameButtonsClickable(mainActivity.isSignedIn());
+            setNewGameButtonsEnabled(mainActivity.isSignedIn());
         } else {
             signedInOrOutTextView.setText(getString(R.string.signed_out));
-            setNewGameButtonsClickable(mainActivity.isSignedIn());
+            setNewGameButtonsEnabled(mainActivity.isSignedIn());
         }
     }
 }

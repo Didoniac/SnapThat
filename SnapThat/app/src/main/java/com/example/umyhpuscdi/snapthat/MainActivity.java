@@ -117,7 +117,7 @@ public class MainActivity
         mainMenuFragment = new MainMenuFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
                 mainMenuFragment).commit();
-        mainMenuFragment.setNewGameButtonsClickable(false);
+        mainMenuFragment.setNewGameButtonsEnabled(false);
     }
 
     public boolean isSignedIn() {
@@ -255,7 +255,7 @@ public class MainActivity
 
         Toast.makeText(MainActivity.this, "Welcome " + displayName + "!", Toast.LENGTH_SHORT).show();
         mainMenuFragment.setGreeting(getString(R.string.signed_in));
-        mainMenuFragment.setNewGameButtonsClickable(true);
+        mainMenuFragment.setNewGameButtonsEnabled(true);
 
         //If player already accepted invite
         if (connectionHint != null) {
@@ -288,7 +288,7 @@ public class MainActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        mainMenuFragment.setNewGameButtonsClickable(false);
+        mainMenuFragment.setNewGameButtonsEnabled(false);
         Log.d("TAG", "onConnectionFailed(): attempting to resolve");
         if (resolvingConnectionFailure) {
             Log.d("TAG", "onConnectionFailed(): already resolving");
@@ -673,6 +673,7 @@ public class MainActivity
         if (!playerDatas.contains(playerData)) {
             playerDatas.add(0,playerData);
         }
+        newGameMenuFragment.goButton.setEnabled(true);
         readyUpListViewAdapter.notifyDataSetChanged();
     }
 
