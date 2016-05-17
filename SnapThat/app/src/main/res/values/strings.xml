@@ -20,6 +20,9 @@
     <string name="results_previous_button">prev</string>
     <string name="results_next_button">next</string>
     <string name="results_score_button">score</string>
+    <string name="victory_previous_button">prev</string>
+    <string name="victory_mainmenu_button">Main menu</string>
+    <string name="victory_rematch_button">Rematch</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

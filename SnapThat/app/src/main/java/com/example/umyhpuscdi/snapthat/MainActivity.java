@@ -56,6 +56,7 @@ public class MainActivity
     private WordSnapFragment wordSnapFragment;
     private NewGameMenuFragment newGameMenuFragment;
     private ResultFragment resultFragment;
+    private VictoryFragment victoryFragment;
 
     protected GoogleApiClient googleApiClient;
 
@@ -681,7 +682,9 @@ public class MainActivity
         // show error message and return to main screen
         Toast.makeText(MainActivity.this, "You got disconnected.", Toast.LENGTH_SHORT).show();
         getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        newGameMenuFragment.onDestroy();
+        if(newGameMenuFragment!=null){
+            newGameMenuFragment.onDestroy();
+        }
     }
 
     @Override
@@ -761,6 +764,10 @@ public class MainActivity
 
     public void setResultFragment(ResultFragment resultFragment) {
         this.resultFragment = resultFragment;
+    }
+
+    public void setVictoryFragment(VictoryFragment victoryFragment) {
+        this.victoryFragment = victoryFragment;
     }
 
     public ArrayList<PlayerData> getPlayerDatas() {
