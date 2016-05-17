@@ -49,6 +49,12 @@
         android:layout_below="@id/readyTextView"
         android:id="@+id/readyUpListView"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/waiting_for_players"
+        android:id="@+id/infoMessageTextView"/>
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

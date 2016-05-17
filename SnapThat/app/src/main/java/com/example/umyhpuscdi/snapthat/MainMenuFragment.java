@@ -15,10 +15,11 @@ public class MainMenuFragment extends Fragment {
 
     private TextView signedInOrOutTextView;
     private Button quickGameButton, invitePlayersButton, showInvitationsButton, quitButton;
+    private MainActivity mainActivity;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.mainmenufragment_layout,container,false);
-        final MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity = (MainActivity) getActivity();
 
         signedInOrOutTextView = (TextView) rootView.findViewById(R.id.signedInOrOutTextView);
         quickGameButton = (Button) rootView.findViewById(R.id.quickGameButton);
@@ -68,6 +69,18 @@ public class MainMenuFragment extends Fragment {
             showInvitationsButton.setClickable(clickable);
         } catch (NullPointerException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(mainActivity.isSignedIn()) {
+            signedInOrOutTextView.setText(getString(R.string.signed_in));
+            setNewGameButtonsClickable(mainActivity.isSignedIn());
+        } else {
+            signedInOrOutTextView.setText(getString(R.string.signed_out));
+            setNewGameButtonsClickable(mainActivity.isSignedIn());
         }
     }
 }

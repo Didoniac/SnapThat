@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -19,6 +20,8 @@ public class NewGameMenuFragment extends Fragment {
     private MainActivity mainActivity;
     private Button chooseThemeButton, goButton;
     private ListView readyUpListView;
+    private boolean beingDestroyed = false;
+    protected TextView infoMessageTextView;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.newgamemenufragment_layout, container, false);
@@ -27,6 +30,7 @@ public class NewGameMenuFragment extends Fragment {
         chooseThemeButton = (Button) rootView.findViewById(R.id.chooseThemeButton);
         goButton = (Button) rootView.findViewById(R.id.goButton);
         readyUpListView = (ListView) rootView.findViewById(R.id.readyUpListView);
+        infoMessageTextView = (TextView) rootView.findViewById(R.id.infoMessageTextView);
 
         mainActivity.readyUpListViewAdapter
                 = new ReadyUpListAdapter(mainActivity, R.layout.readyup_list_item, mainActivity.getPlayerDatas(), mainActivity);
@@ -52,7 +56,6 @@ public class NewGameMenuFragment extends Fragment {
                     mainActivity.setWordSnapFragment(wordSnapFragment);
                     FragmentTransaction fragmentTransaction =
                     mainActivity.getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
                 } else {
                     Toast.makeText(getContext(), "At least " + MainActivity.MIN_PLAYERS + "players is required to play.", Toast.LENGTH_SHORT).show();
@@ -61,5 +64,21 @@ public class NewGameMenuFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroy() {
+        beingDestroyed = true;
+        super.onDestroy();
+        if (mainActivity.room != null) {
+            mainActivity.leave(mainActivity.googleApiClient, mainActivity, mainActivity.room.getRoomId());
+        }
+        mainActivity.readyUpListViewAdapter = null;
+        mainActivity.getPlayerDatas().clear();
+    }
+
+
+    public boolean isBeingDestroyed() {
+        return beingDestroyed;
     }
 }

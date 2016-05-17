@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">SnapThat</string>
-    <string name="quick_game">Quick game</string>
+    <string name="quick_game">Quick game\n(2 players)</string>
     <string name="quit">Quit</string>
     <string name="signed_in">Signed in.</string>
     <string name="signed_out">Signed out.</string>
@@ -23,4 +23,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="connecting_to_room">Connecting.</string>
+    <string name="connected_to_room">Connected.</string>
+    <string name="waiting_for_players">Waiting for players.</string>
 </resources>
