@@ -561,9 +561,7 @@ public class MainActivity
                 if (p.isConnectedToRoom()) ++connectedPlayers;
             }
         }
-        //TODO change back from debugging witouth players
-        //return connectedPlayers >= MIN_PLAYERS;
-        return true;
+        return connectedPlayers >= MIN_PLAYERS;
     }
 
     /**
