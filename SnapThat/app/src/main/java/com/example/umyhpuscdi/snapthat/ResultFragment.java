@@ -73,11 +73,9 @@ public class ResultFragment extends Fragment {
             public void onClick(View v) {
                 //go to score-fragment with fragment manager
                 VictoryFragment victoryFragment = new VictoryFragment();
-                mainActivity.setVictoryFragment(victoryFragment);
 
                 FragmentTransaction fragmentTransaction =
                         mainActivity.getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.replace(R.id.mainLayout, victoryFragment).commit();
 
             }

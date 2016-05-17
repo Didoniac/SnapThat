@@ -54,9 +54,8 @@ public class MainActivity
     private MainMenuFragment mainMenuFragment;
     private ChooseThemeFragment chooseThemeFragment;
     private WordSnapFragment wordSnapFragment;
-    private NewGameMenuFragment newGameMenuFragment;
+    protected NewGameMenuFragment newGameMenuFragment;
     private ResultFragment resultFragment;
-    private VictoryFragment victoryFragment;
 
     protected GoogleApiClient googleApiClient;
 
@@ -669,7 +668,7 @@ public class MainActivity
             }
         }
         if (!playerDatas.contains(playerData)) {
-            playerDatas.add(0,playerData);
+            playerDatas.add(0, playerData);
         }
         readyUpListViewAdapter.notifyDataSetChanged();
     }
@@ -766,9 +765,9 @@ public class MainActivity
         this.resultFragment = resultFragment;
     }
 
-    public void setVictoryFragment(VictoryFragment victoryFragment) {
+    /*public void setVictoryFragment(VictoryFragment victoryFragment) {
         this.victoryFragment = victoryFragment;
-    }
+    }*/
 
     public ArrayList<PlayerData> getPlayerDatas() {
         return playerDatas;
@@ -810,5 +809,21 @@ public class MainActivity
 
     public void timerStarted(){
         this.timeIsUp = false;
+    }
+
+    @Override
+    public void onBackPressed() {
+
+
+        if(getSupportFragmentManager().getBackStackEntryCount()>0) {
+            getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.remove(newGameMenuFragment);
+            fragmentTransaction.commit();
+        }
+        else{
+            super.onBackPressed();
+        }
+
     }
 }

@@ -62,4 +62,5 @@ public class NewGameMenuFragment extends Fragment {
 
         return rootView;
     }
+
 }
