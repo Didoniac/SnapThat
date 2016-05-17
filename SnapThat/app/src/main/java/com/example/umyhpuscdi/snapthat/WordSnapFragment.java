@@ -32,6 +32,7 @@ public class WordSnapFragment extends Fragment {
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.wordsnapfragment_layout, container, false);
         mainActivity = (MainActivity) getActivity();
+        mainActivity.timerStarted();
 
         timeLeftTextView = (TextView) rootView.findViewById(R.id.timeLeftTextView);
         wordTextView = (TextView) rootView.findViewById(R.id.wordTextView);
@@ -107,19 +108,12 @@ public class WordSnapFragment extends Fragment {
             @Override
             public void onFinish() {
                 try {
-                    //TODO Show results view from here
                     Toast.makeText(getContext(), "Time's up!", Toast.LENGTH_LONG).show();
                     String tempTimeLeftString = getString(R.string.time_left);
                     tempTimeLeftString += "00:00";
                     timeLeftTextView.setText(tempTimeLeftString);
-
-                    ResultFragment resultFragment = new ResultFragment();
-                    mainActivity.setResultFragment(resultFragment);
-
-                    FragmentTransaction fragmentTransaction =
-                            mainActivity.getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.replace(R.id.mainLayout, resultFragment).commit();
+                    mainActivity.timeIsUp();
+                    mainActivity.endCurrentGame();
                 } catch (IllegalStateException e) {
                     cancel();
                 }

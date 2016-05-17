@@ -50,7 +50,7 @@ public class MainActivity
     private MainMenuFragment mainMenuFragment;
     private ChooseThemeFragment chooseThemeFragment;
     private WordSnapFragment wordSnapFragment;
-    private NewGameMenuFragment newGameMenuFragment;
+    protected NewGameMenuFragment newGameMenuFragment;
     private ResultFragment resultFragment;
 
     protected GoogleApiClient googleApiClient;
@@ -101,6 +101,7 @@ public class MainActivity
 
     protected ArrayAdapter readyUpListViewAdapter;
     protected ArrayAdapter resultsListViewAdapter;
+    private boolean timeIsUp = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,17 +231,25 @@ public class MainActivity
             fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
 
         } else if(requestCode == IMG_TAKEN_CODE){
-            if (resultCode != Activity.RESULT_OK || !isSignedIn()) {
-                // canceled
-                return;
-            }
-            Uri latestPictureUri = CameraHandler.getFilePathFromIntent(latestPicIntent);
-            int latestWordIndex = wordSnapFragment.getIndexOfCurrentWord();
-            playerData.getThingsToPhotograph().get(latestWordIndex).setmFilePath(latestPictureUri);
-            playerData.getThingsToPhotograph().get(latestWordIndex).uploadAndCheck();
+            if(!timeIsUp) {
+                if (resultCode != Activity.RESULT_OK || !isSignedIn()) {
+                    // canceled
+                    return;
+                }
+                Uri latestPictureUri = CameraHandler.getFilePathFromIntent(latestPicIntent);
+                int latestWordIndex = wordSnapFragment.getIndexOfCurrentWord();
+                playerData.getThingsToPhotograph().get(latestWordIndex).setmFilePath(latestPictureUri);
+                playerData.getThingsToPhotograph().get(latestWordIndex).uploadAndCheck();
 
-            wordSnapFragment.showNextWord();
+                wordSnapFragment.showNextWord();
+            }else {
+                endCurrentGame();
+            }
         }
+    }
+
+    public void endCurrentGame() {
+        goToResultViewFragment();
     }
 
     @Override
@@ -559,7 +568,9 @@ public class MainActivity
                 if (p.isConnectedToRoom()) ++connectedPlayers;
             }
         }
-        return connectedPlayers >= MIN_PLAYERS;
+        //TODO change back from debugging witouth players
+        //return connectedPlayers >= MIN_PLAYERS;
+        return true;
     }
 
     /**
@@ -671,7 +682,7 @@ public class MainActivity
             }
         }
         if (!playerDatas.contains(playerData)) {
-            playerDatas.add(0,playerData);
+            playerDatas.add(0, playerData);
         }
         newGameMenuFragment.goButton.setEnabled(true);
         readyUpListViewAdapter.notifyDataSetChanged();
@@ -681,6 +692,13 @@ public class MainActivity
     public void onDisconnectedFromRoom(Room room) {
         // leave the room
         leave(googleApiClient, this, room.getRoomId());
+
+        // show error message and return to main screen
+        Toast.makeText(MainActivity.this, "You got disconnected.", Toast.LENGTH_SHORT).show();
+        getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if(newGameMenuFragment!=null){
+            newGameMenuFragment.onDestroy();
+        }
     }
 
     @Override
@@ -762,6 +780,10 @@ public class MainActivity
         this.resultFragment = resultFragment;
     }
 
+    /*public void setVictoryFragment(VictoryFragment victoryFragment) {
+        this.victoryFragment = victoryFragment;
+    }*/
+
     public ArrayList<PlayerData> getPlayerDatas() {
         return playerDatas;
     }
@@ -786,5 +808,37 @@ public class MainActivity
         } else if (statusCode == GamesStatusCodes.STATUS_OK) {
             Log.i("TAG","Message delivered successfully. (" + statusCode + ")");
         }
+    }
+
+    private void goToResultViewFragment(){
+        ResultFragment resultFragment = new ResultFragment();
+        setResultFragment(resultFragment);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.replace(R.id.mainLayout, resultFragment).commit();
+    }
+
+    public void timeIsUp() {
+        this.timeIsUp = true;
+    }
+
+    public void timerStarted(){
+        this.timeIsUp = false;
+    }
+
+    @Override
+    public void onBackPressed() {
+
+
+        if(getSupportFragmentManager().getBackStackEntryCount()>0) {
+            getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.remove(newGameMenuFragment);
+            fragmentTransaction.commit();
+        }
+        else{
+            super.onBackPressed();
+        }
+
     }
 }

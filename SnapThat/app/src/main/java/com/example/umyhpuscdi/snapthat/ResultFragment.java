@@ -72,6 +72,12 @@ public class ResultFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //go to score-fragment with fragment manager
+                VictoryFragment victoryFragment = new VictoryFragment();
+
+                FragmentTransaction fragmentTransaction =
+                        mainActivity.getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.mainLayout, victoryFragment).commit();
+
             }
         });
 

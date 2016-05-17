@@ -100,11 +100,15 @@ public class ThingToPhotograph{
     }
 
     public Bitmap getBitmap(int inSampleSize){
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = inSampleSize;
+        if(isPhotographed) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = inSampleSize;
 
-        Bitmap bitmap = BitmapFactory.decodeFile(mFilePath.getPath(), options);
-        return bitmap;
+            Bitmap bitmap = BitmapFactory.decodeFile(mFilePath.getPath(), options);
+            return bitmap;
+        }else {
+            return null;
+        }
     }
 
     private void onPostExecuteUploadAndCheck(String jsonString){
