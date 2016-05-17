@@ -54,9 +54,8 @@ public class MainActivity
     private MainMenuFragment mainMenuFragment;
     private ChooseThemeFragment chooseThemeFragment;
     private WordSnapFragment wordSnapFragment;
-    private NewGameMenuFragment newGameMenuFragment;
+    protected NewGameMenuFragment newGameMenuFragment;
     private ResultFragment resultFragment;
-    private VictoryFragment victoryFragment;
 
     protected GoogleApiClient googleApiClient;
 
@@ -94,6 +93,7 @@ public class MainActivity
     private ArrayList<PlayerData> playerDatas = new ArrayList<>();
 
     protected Room room;
+    private RoomConfig roomConfig;
 
     private int value = 0;
 
@@ -126,7 +126,7 @@ public class MainActivity
         }
     }
 
-    private boolean isSignedIn() {
+    public boolean isSignedIn() {
         return (googleApiClient != null && googleApiClient.isConnected());
     }
 
@@ -193,7 +193,7 @@ public class MainActivity
             if (autoMatchCriteria != null) {
                 roomConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
             }
-            RoomConfig roomConfig = roomConfigBuilder.build();
+            roomConfig = roomConfigBuilder.build();
             Games.RealTimeMultiplayer.create(googleApiClient, roomConfig);
 
             // prevent screen from sleeping during handshake
@@ -204,8 +204,11 @@ public class MainActivity
 
             // go to game screen
             newGameMenuFragment = new NewGameMenuFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
-                    newGameMenuFragment).commit();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.addToBackStack("MainMenuFragment");
+            fragmentTransaction.replace(R.id.mainLayout,
+                    newGameMenuFragment);
+            fragmentTransaction.commit();
 
         } else if (requestCode == RC_INVITATION_INBOX) {
             if (resultCode != Activity.RESULT_OK) {
@@ -219,7 +222,6 @@ public class MainActivity
                     extras.getParcelable(Multiplayer.EXTRA_INVITATION);
 
             // accept it!
-            RoomConfig roomConfig;
             if (invitation != null) {
                 roomConfig = makeBasicRoomConfigBuilder()
                         .setInvitationIdToAccept(invitation.getInvitationId())
@@ -332,6 +334,9 @@ public class MainActivity
         if (statusCode == GamesStatusCodes.STATUS_OK) {
 
             this.room = room;
+            if (!playerDatas.contains(playerData)) {
+                playerDatas.add(0,playerData);
+            }
 
         } else {
             // let screen go to sleep
@@ -347,6 +352,9 @@ public class MainActivity
     public void onJoinedRoom(int statusCode, Room room) {
         if (statusCode == GamesStatusCodes.STATUS_OK) {
             this.room = room;
+            if (!playerDatas.contains(playerData)) {
+                playerDatas.add(0,playerData);
+            }
 
         } else {
             // let screen go to sleep
@@ -416,6 +424,13 @@ public class MainActivity
 
         // remove the flag that keeps the screen on
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (getSupportFragmentManager().getFragments().contains(newGameMenuFragment)
+                && !newGameMenuFragment.isBeingDestroyed()) {
+            playerDatas.clear();
+            getSupportFragmentManager().popBackStack();
+            Toast.makeText(MainActivity.this, "Starting quick game.", Toast.LENGTH_SHORT).show();
+            startQuickGame();
+        }
     }
 
     @Override
@@ -465,7 +480,7 @@ public class MainActivity
         // build the room config:
         RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder();
         roomConfigBuilder.setAutoMatchCriteria(am);
-        RoomConfig roomConfig = roomConfigBuilder.build();
+        roomConfig = roomConfigBuilder.build();
 
         // create room:
         create(googleApiClient, roomConfig);
@@ -581,7 +596,7 @@ public class MainActivity
 
     @Override
     public void onRoomConnecting(Room room) {
-        Toast.makeText(MainActivity.this, "Connecting to room.", Toast.LENGTH_SHORT).show();
+        newGameMenuFragment.infoMessageTextView.setText(R.string.connecting_to_room);
     }
 
     @Override
@@ -653,9 +668,11 @@ public class MainActivity
         for (int i = 0; i < participantIds.size(); i++) {
             participant = room.getParticipant(participantIds.get(i));
             stringToDisplay += "\n" + participant.getDisplayName();
-            if (participantIds.get(i).equals(playerDatas.get(i).getPlayerID())) {
-                playerDatas.remove(i);
-                readyUpListViewAdapter.notifyDataSetChanged();
+            if (playerDatas.size() > 0) {
+                if (participantIds.get(i).equals(playerDatas.get(i).getPlayerID())) {
+                    playerDatas.remove(i);
+                    readyUpListViewAdapter.notifyDataSetChanged();
+                }
             }
         }
         Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
@@ -663,7 +680,7 @@ public class MainActivity
 
     @Override
     public void onConnectedToRoom(Room room) {
-        Toast.makeText(MainActivity.this, "Connected.", Toast.LENGTH_SHORT).show();
+        newGameMenuFragment.infoMessageTextView.setText(R.string.connected_to_room);
         if (playerDatas.size() == 0) {
             ArrayList<Participant> participants = room.getParticipants();
             for (int i = 0; i < participants.size(); i++) {
@@ -671,8 +688,9 @@ public class MainActivity
             }
         }
         if (!playerDatas.contains(playerData)) {
-            playerDatas.add(0,playerData);
+            playerDatas.add(0, playerData);
         }
+        newGameMenuFragment.goButton.setEnabled(true);
         readyUpListViewAdapter.notifyDataSetChanged();
     }
 
@@ -768,9 +786,9 @@ public class MainActivity
         this.resultFragment = resultFragment;
     }
 
-    public void setVictoryFragment(VictoryFragment victoryFragment) {
+    /*public void setVictoryFragment(VictoryFragment victoryFragment) {
         this.victoryFragment = victoryFragment;
-    }
+    }*/
 
     public ArrayList<PlayerData> getPlayerDatas() {
         return playerDatas;
@@ -843,4 +861,15 @@ public class MainActivity
                 mainMenuFragment).commit();
     }
 
+    public void onBackPressed() {
+        if(getSupportFragmentManager().getBackStackEntryCount()>0) {
+            getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.remove(newGameMenuFragment);
+            fragmentTransaction.commit();
+        }
+        else{
+            super.onBackPressed();
+        }
+    }
 }

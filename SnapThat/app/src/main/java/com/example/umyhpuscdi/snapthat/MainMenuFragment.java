@@ -17,10 +17,11 @@ public class MainMenuFragment extends Fragment {
     private Button quickGameButton, invitePlayersButton, showInvitationsButton, quitButton;
     private boolean googlePlayConnected = false;
     private boolean cameraPermissionGranted = false;
+    private MainActivity mainActivity;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.mainmenufragment_layout,container,false);
-        final MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity = (MainActivity) getActivity();
 
         signedInOrOutTextView = (TextView) rootView.findViewById(R.id.signedInOrOutTextView);
         quickGameButton = (Button) rootView.findViewById(R.id.quickGameButton);
@@ -82,23 +83,15 @@ public class MainMenuFragment extends Fragment {
     }
 
     private void disableButtons() {
-        quickGameButton.setClickable(false);
-        invitePlayersButton.setClickable(false);
-        showInvitationsButton.setClickable(false);
-
-        quickGameButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_dark_disabled));
-        invitePlayersButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_dark_disabled));
-        showInvitationsButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_dark_disabled));
+        quickGameButton.setEnabled(false);
+        invitePlayersButton.setEnabled(false);
+        showInvitationsButton.setEnabled(false);
     }
 
     private void enableButtons() {
-        quickGameButton.setClickable(true);
-        invitePlayersButton.setClickable(true);
-        showInvitationsButton.setClickable(true);
-
-        quickGameButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_light_default));
-        invitePlayersButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_light_default));
-        showInvitationsButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_light_default));
+        quickGameButton.setEnabled(true);
+        invitePlayersButton.setEnabled(true);
+        showInvitationsButton.setEnabled(true);
     }
 
 
@@ -113,4 +106,15 @@ public class MainMenuFragment extends Fragment {
         updateNewGameButtonsClickableState();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(mainActivity.isSignedIn()) {
+            signedInOrOutTextView.setText(getString(R.string.signed_in));
+            setGooglePlayConnected(true);
+        } else {
+            signedInOrOutTextView.setText(getString(R.string.signed_out));
+            setGooglePlayConnected(false);
+        }
+    }
 }

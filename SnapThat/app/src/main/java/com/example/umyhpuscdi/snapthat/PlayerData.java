@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class PlayerData {
 
-    private ArrayList<ThingToPhotograph> thingsToPhotograph;
+    private ArrayList<ThingToPhotograph> thingsToPhotograph = new ArrayList<>();
     private String username;
     private boolean ready;
     private int score, numberOfPhotos;

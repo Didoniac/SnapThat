@@ -3,6 +3,7 @@ package com.example.umyhpuscdi.snapthat;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,13 +58,40 @@ public class VictoryFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //Disconnect from room and go to main menu
+
+                mainActivity.leave(mainActivity.googleApiClient, mainActivity, mainActivity.room.getRoomId());
+
+                mainActivity.getPlayerDatas().clear();
+                mainActivity.getPlayerDatas().add(mainActivity.playerData);
+                mainActivity.getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+
             }
         });
 
-        finalscoreList.setOnClickListener(new View.OnClickListener() {
+        rematchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //For rematch, go to NewGameMenuFragment while in the same room
+
+
+
+                FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
+                mainActivity.newGameMenuFragment = new NewGameMenuFragment();
+
+
+                fragmentTransaction.replace(R.id.mainLayout, mainActivity.newGameMenuFragment).commit();
+
+                for(int i=0; mainActivity.getPlayerDatas().size()>i;i++){
+                    PlayerData playerdata = mainActivity.getPlayerDatas().get(i);
+                    playerdata.getThingsToPhotograph().clear();
+                    playerdata.setScore(0);
+                    playerdata.setNumberOfPhotos(0);
+                    playerdata.setReady(false);
+
+                }
+
+
             }
         });
 
