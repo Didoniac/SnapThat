@@ -15,6 +15,8 @@ public class MainMenuFragment extends Fragment {
 
     private TextView signedInOrOutTextView;
     private Button quickGameButton, invitePlayersButton, showInvitationsButton, quitButton;
+    private boolean googlePlayConnected = false;
+    private boolean cameraPermissionGranted = false;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.mainmenufragment_layout,container,false);
@@ -47,6 +49,8 @@ public class MainMenuFragment extends Fragment {
             }
         });
 
+        updateNewGameButtonsClickableState();
+
         quitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,13 +65,52 @@ public class MainMenuFragment extends Fragment {
         signedInOrOutTextView.setText(string);
     }
 
-    public void setNewGameButtonsClickable(boolean clickable) {
-        try {
-            quickGameButton.setClickable(clickable);
-            invitePlayersButton.setClickable(clickable);
-            showInvitationsButton.setClickable(clickable);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+    public void updateNewGameButtonsClickableState() {
+        if(this.googlePlayConnected && this.cameraPermissionGranted) {
+            try {
+                enableButtons();
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }else {
+            try {
+                disableButtons();
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+    private void disableButtons() {
+        quickGameButton.setClickable(false);
+        invitePlayersButton.setClickable(false);
+        showInvitationsButton.setClickable(false);
+
+        quickGameButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_dark_disabled));
+        invitePlayersButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_dark_disabled));
+        showInvitationsButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_dark_disabled));
+    }
+
+    private void enableButtons() {
+        quickGameButton.setClickable(true);
+        invitePlayersButton.setClickable(true);
+        showInvitationsButton.setClickable(true);
+
+        quickGameButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_light_default));
+        invitePlayersButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_light_default));
+        showInvitationsButton.setTextColor(getResources().getColor(R.color.common_google_signin_btn_text_light_default));
+    }
+
+
+
+    public void setGooglePlayConnected(boolean isConnected){
+        this.googlePlayConnected = isConnected;
+        updateNewGameButtonsClickableState();
+    }
+
+    public void setCameraPermissionGranted(boolean permissionGranted){
+        this.cameraPermissionGranted = permissionGranted;
+        updateNewGameButtonsClickableState();
+    }
+
 }

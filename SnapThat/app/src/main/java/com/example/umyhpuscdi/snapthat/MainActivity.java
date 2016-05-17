@@ -3,13 +3,13 @@ package com.example.umyhpuscdi.snapthat;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,7 +34,6 @@ import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -51,6 +50,7 @@ public class MainActivity
         RealTimeMultiplayer.ReliableMessageSentCallback,
         ThingToPhotograph.PostDownloadAPIGuessExecuteListener{
 
+    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 0;
     private MainMenuFragment mainMenuFragment;
     private ChooseThemeFragment chooseThemeFragment;
     private WordSnapFragment wordSnapFragment;
@@ -112,17 +112,18 @@ public class MainActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Create the Google API Client with access to Games
-        googleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
-                .build();
+        createMainMenu();
+        createGoogleAPIClient();
+    }
 
-        mainMenuFragment = new MainMenuFragment();
-        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
-                mainMenuFragment).commit();
-        mainMenuFragment.setNewGameButtonsClickable(false);
+    private void cameraPermission() {
+        int permissionCheck = ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA);
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
+            //ask for permission
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
+        }else {
+            mainMenuFragment.setCameraPermissionGranted(true);
+        }
     }
 
     private boolean isSignedIn() {
@@ -132,6 +133,9 @@ public class MainActivity
     @Override
     protected void onStart() {
         super.onStart();
+
+        cameraPermission();
+
         if (!googleApiClient.isConnected()) {
             Log.d("TAG", "onStart(): connecting");
         googleApiClient.connect();
@@ -266,7 +270,7 @@ public class MainActivity
 
         Toast.makeText(MainActivity.this, "Welcome " + displayName + "!", Toast.LENGTH_SHORT).show();
         mainMenuFragment.setGreeting(getString(R.string.signed_in));
-        mainMenuFragment.setNewGameButtonsClickable(true);
+        mainMenuFragment.setGooglePlayConnected(true);
 
         //If player already accepted invite
         if (connectionHint != null) {
@@ -299,7 +303,7 @@ public class MainActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        mainMenuFragment.setNewGameButtonsClickable(false);
+        mainMenuFragment.setGooglePlayConnected(false);
         Log.d("TAG", "onConnectionFailed(): attempting to resolve");
         if (resolvingConnectionFailure) {
             Log.d("TAG", "onConnectionFailed(): already resolving");
@@ -811,4 +815,34 @@ public class MainActivity
     public void timerStarted(){
         this.timeIsUp = false;
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case MY_PERMISSIONS_REQUEST_CAMERA: {
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    //Permission granted
+                    mainMenuFragment.setCameraPermissionGranted(true);
+                }else {
+                    cameraPermission();
+                }
+            }
+        }
+    }
+
+    private void createGoogleAPIClient() {
+        // Create the Google API Client with access to Games
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
+                .build();
+    }
+
+    private void createMainMenu(){
+        mainMenuFragment = new MainMenuFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout,
+                mainMenuFragment).commit();
+    }
+
 }
