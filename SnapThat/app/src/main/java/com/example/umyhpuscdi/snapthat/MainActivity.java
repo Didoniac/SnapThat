@@ -104,6 +104,7 @@ public class MainActivity
 
     protected ArrayAdapter readyUpListViewAdapter;
     protected ArrayAdapter resultsListViewAdapter;
+    private boolean timeIsUp = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -231,17 +232,25 @@ public class MainActivity
             fragmentTransaction.replace(R.id.mainLayout, newGameMenuFragment).commit();
 
         } else if(requestCode == IMG_TAKEN_CODE){
-            if (resultCode != Activity.RESULT_OK || !isSignedIn()) {
-                // canceled
-                return;
-            }
-            Uri latestPictureUri = CameraHandler.getFilePathFromIntent(latestPicIntent);
-            int latestWordIndex = wordSnapFragment.getIndexOfCurrentWord();
-            playerData.getThingsToPhotograph().get(latestWordIndex).setmFilePath(latestPictureUri);
-            playerData.getThingsToPhotograph().get(latestWordIndex).uploadAndCheck();
+            if(!timeIsUp) {
+                if (resultCode != Activity.RESULT_OK || !isSignedIn()) {
+                    // canceled
+                    return;
+                }
+                Uri latestPictureUri = CameraHandler.getFilePathFromIntent(latestPicIntent);
+                int latestWordIndex = wordSnapFragment.getIndexOfCurrentWord();
+                playerData.getThingsToPhotograph().get(latestWordIndex).setmFilePath(latestPictureUri);
+                playerData.getThingsToPhotograph().get(latestWordIndex).uploadAndCheck();
 
-            wordSnapFragment.showNextWord();
+                wordSnapFragment.showNextWord();
+            }else {
+                endCurrentGame();
+            }
         }
+    }
+
+    public void endCurrentGame() {
+        goToResultViewFragment();
     }
 
     @Override
@@ -547,7 +556,9 @@ public class MainActivity
                 if (p.isConnectedToRoom()) ++connectedPlayers;
             }
         }
-        return connectedPlayers >= MIN_PLAYERS;
+        //TODO change back from debugging witouth players
+        //return connectedPlayers >= MIN_PLAYERS;
+        return true;
     }
 
     /**
@@ -776,5 +787,21 @@ public class MainActivity
         } else if (statusCode == GamesStatusCodes.STATUS_OK) {
             Log.i("TAG","Message delivered successfully. (" + statusCode + ")");
         }
+    }
+
+    private void goToResultViewFragment(){
+        ResultFragment resultFragment = new ResultFragment();
+        setResultFragment(resultFragment);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.replace(R.id.mainLayout, resultFragment).commit();
+    }
+
+    public void timeIsUp() {
+        this.timeIsUp = true;
+    }
+
+    public void timerStarted(){
+        this.timeIsUp = false;
     }
 }
