@@ -609,7 +609,10 @@ public class MainActivity
     }
 
     // returns whether there are enough players to start the game
-    public boolean shouldStartGame() {
+/*
+        BUGGAD OCH ONÖDIG
+        
+        public boolean shouldStartGame() {
         int connectedPlayers = 0;
         if (room != null) {
             for (Participant p : room.getParticipants()) {
@@ -618,6 +621,7 @@ public class MainActivity
         }
         return connectedPlayers >= MIN_PLAYERS;
     }
+    */
 
     /**
      * Returns whether the room is in a state where the game should be canceled.

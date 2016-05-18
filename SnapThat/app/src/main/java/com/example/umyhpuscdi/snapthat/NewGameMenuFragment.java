@@ -50,16 +50,12 @@ public class NewGameMenuFragment extends Fragment {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mainActivity.shouldStartGame()) {
                     mainActivity.sendReliableMessage(mainActivity.googleApiClient,mainActivity,MainActivity.startGameMessage.getBytes(),mainActivity.room.getRoomId(), null);
                     WordSnapFragment wordSnapFragment = new WordSnapFragment();
                     mainActivity.setWordSnapFragment(wordSnapFragment);
                     FragmentTransaction fragmentTransaction =
                     mainActivity.getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
-                } else {
-                    Toast.makeText(getContext(), "At least " + MainActivity.MIN_PLAYERS + "players is required to play.", Toast.LENGTH_SHORT).show();
-                }
             }
         });
 
