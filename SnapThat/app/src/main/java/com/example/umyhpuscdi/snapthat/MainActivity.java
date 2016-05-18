@@ -63,6 +63,7 @@ public class MainActivity
     private WordSnapFragment wordSnapFragment;
     protected NewGameMenuFragment newGameMenuFragment;
     private ResultFragment resultFragment;
+    private VictoryFragment victoryFragment;
 
     protected GoogleApiClient googleApiClient;
 
@@ -113,6 +114,7 @@ public class MainActivity
     protected ArrayAdapter readyUpListViewAdapter;
     protected ArrayAdapter resultsListViewAdapter;
     private boolean timeIsUp = false;
+    protected boolean inThemeView = false;
 
 
     @Override
@@ -828,9 +830,9 @@ public class MainActivity
         this.resultFragment = resultFragment;
     }
 
-    /*public void setVictoryFragment(VictoryFragment victoryFragment) {
+    public void setVictoryFragment(VictoryFragment victoryFragment) {
         this.victoryFragment = victoryFragment;
-    }*/
+    }
 
     public ArrayList<PlayerData> getPlayerDatas() {
         return playerDatas;
@@ -925,16 +927,34 @@ public class MainActivity
                 mainMenuFragment).commit();
     }
 
-   /* public void onBackPressed() {
-        if(getSupportFragmentManager().getBackStackEntryCount()>0) {
+  public void onBackPressed() {
 
-            getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            //FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            //fragmentTransaction.remove(newGameMenuFragment);
-            //fragmentTransaction.commit();
-        }
-        else{
-            super.onBackPressed();
-        }
-    }*/
+       if(inThemeView){
+           inThemeView = false;
+           super.onBackPressed();
+       }
+       else {
+           if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+               if(wordSnapFragment!=null){
+                   getSupportFragmentManager().beginTransaction().remove(wordSnapFragment).commit();
+
+               }
+               if(resultFragment!=null){
+                   getSupportFragmentManager().beginTransaction().remove(resultFragment).commit();
+
+               }
+               if(victoryFragment!=null){
+                   getSupportFragmentManager().beginTransaction().remove(victoryFragment).commit();
+
+               }
+               super.onBackPressed();
+
+               if (room!=null) {
+                   leave(googleApiClient, this, room.getRoomId());
+               }
+           } else {
+               super.onBackPressed();
+           }
+       }
+    }
 }

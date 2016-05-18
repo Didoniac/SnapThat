@@ -32,6 +32,7 @@ public class ChooseThemeFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+
                 mainActivity.onBackPressed();
 
 
