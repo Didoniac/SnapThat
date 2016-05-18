@@ -1,13 +1,13 @@
 package com.example.umyhpuscdi.snapthat;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,6 +22,7 @@ import java.util.Calendar;
 /**
  * Created by umyhblomti on 2016-05-02.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ThingToPhotograph{
 
     private static final String X_MASHAPE_KEY = "J5ykIANsTimshEs1KFCqdavnWsDPp1vY2ILjsn26bsA9ElIZJw";

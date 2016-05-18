@@ -72,7 +72,6 @@ public class NewGameMenuFragment extends Fragment {
                 }
                 //Shuffle the list
                 Collections.shuffle(mainActivity.playerData.getThingsToPhotograph());
-                mainActivity.playerData.setThingsToPhotograph(mainActivity.playerData.getThingsToPhotograph());
 
                 //Convert list to JSON
                 ArrayList<String> stringArrayList = new ArrayList<>();
