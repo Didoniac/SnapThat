@@ -37,10 +37,12 @@ import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListene
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -547,16 +549,24 @@ public class MainActivity
             }
         } else {
             String receivedString = new String(b);
-            if (receivedString.equals(startGameMessage)) {
-                WordSnapFragment wordSnapFragment = new WordSnapFragment();
-                setWordSnapFragment(wordSnapFragment);
-                FragmentTransaction fragmentTransaction =
-                        getSupportFragmentManager().beginTransaction();
-                //fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
-            } else {
-                try {
-                    JSONObject jsonObject = new JSONObject(receivedString);
+            try {
+                JSONObject jsonObject = new JSONObject(receivedString);
+                if (jsonObject.get("contentType").equals(startGameMessage)) {
+                    ArrayList<ThingToPhotograph> newThingsToPhotograph = new ArrayList<>();
+                    JSONArray jsonArray = new JSONArray((String)jsonObject.get("contents"));
+                    Gson gson = new Gson();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        newThingsToPhotograph.add(gson.fromJson(jsonArray.getString(i),ThingToPhotograph.class));
+                    }
+
+                    playerData.setThingsToPhotograph(newThingsToPhotograph);
+                    WordSnapFragment wordSnapFragment = new WordSnapFragment();
+                    setWordSnapFragment(wordSnapFragment);
+                    FragmentTransaction fragmentTransaction =
+                            getSupportFragmentManager().beginTransaction();
+                    //fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+                } else {
                     if (jsonObject.get("contentType").equals("ImageSerializable")) {
                         JSONObject imageSerializableJsonObject
                                 = new JSONObject((String)jsonObject.get("contents"));
@@ -582,10 +592,9 @@ public class MainActivity
                             Collections.sort(playerWhoSentTheData.getThingsToPhotograph(),new ThingToPhotographIndexComparator());
                         }
                     }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
             // process message
     //        Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
@@ -611,7 +620,7 @@ public class MainActivity
     // returns whether there are enough players to start the game
 /*
         BUGGAD OCH ONÖDIG
-        
+
         public boolean shouldStartGame() {
         int connectedPlayers = 0;
         if (room != null) {

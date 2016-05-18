@@ -63,6 +63,11 @@ public class ThingToPhotograph{
         mListener = listener;
     }
 
+    //Required empty constructor for Gson
+    public ThingToPhotograph() {
+
+    }
+
     public ThingToPhotograph(Bitmap bitmap, int index, boolean accepted, String bestGuess) {
         this.accepted = accepted;
         this.mBestGuess = bestGuess;

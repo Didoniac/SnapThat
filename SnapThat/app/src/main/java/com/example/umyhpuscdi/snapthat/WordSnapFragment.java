@@ -24,7 +24,7 @@ public class WordSnapFragment extends Fragment {
 
     private TextView timeLeftTextView, wordTextView;
     private Button skipButton, snapButton;
-    private ArrayList<ThingToPhotograph> thingsToPhotograph = new ArrayList<>();
+    private ArrayList<ThingToPhotograph> thingsToPhotograph;
     private MainActivity mainActivity;
     private Toast toast;
     private CountDownTimer timer;
@@ -39,15 +39,9 @@ public class WordSnapFragment extends Fragment {
         skipButton = (Button) rootView.findViewById(R.id.skipButton);
         snapButton = (Button) rootView.findViewById(R.id.snapButton);
 
+        thingsToPhotograph = mainActivity.playerData.getThingsToPhotograph();
+
         timeLeftTextView.setText(R.string.time_left);
-
-        String[] thingsToPhotographStrings = mainActivity.getResources().getStringArray(R.array.office);
-
-        for (String thingToPhotographString : thingsToPhotographStrings) {
-            thingsToPhotograph.add(new ThingToPhotograph(thingToPhotographString, thingToPhotographString, mainActivity));
-        }
-        Collections.shuffle(thingsToPhotograph);
-        mainActivity.playerData.setThingsToPhotograph(thingsToPhotograph);
 
         //get the name of the thing to photograph
         wordTextView.setText(thingsToPhotograph.get(0).getmTitle());

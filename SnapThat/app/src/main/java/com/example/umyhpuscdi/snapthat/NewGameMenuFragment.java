@@ -12,6 +12,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Collections;
+
 /**
  * Created by umyhpuscdi on 2016-05-09.
  */
@@ -50,12 +56,38 @@ public class NewGameMenuFragment extends Fragment {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    mainActivity.sendReliableMessage(mainActivity.googleApiClient,mainActivity,MainActivity.startGameMessage.getBytes(),mainActivity.room.getRoomId(), null);
-                    WordSnapFragment wordSnapFragment = new WordSnapFragment();
-                    mainActivity.setWordSnapFragment(wordSnapFragment);
-                    FragmentTransaction fragmentTransaction =
-                    mainActivity.getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+
+                //Get the words
+                String[] thingsToPhotographStrings = mainActivity.getResources().getStringArray(R.array.office);
+
+                for (String thingToPhotographString : thingsToPhotographStrings) {
+                    mainActivity.playerData.getThingsToPhotograph().add(
+                            new ThingToPhotograph(thingToPhotographString, thingToPhotographString, mainActivity));
+                }
+                //Shuffle the list
+                Collections.shuffle(mainActivity.playerData.getThingsToPhotograph());
+                mainActivity.playerData.setThingsToPhotograph(mainActivity.playerData.getThingsToPhotograph());
+
+                //Convert list to JSON
+                JSONArray jsonThingsToPhotographArray = new JSONArray(mainActivity.playerData.getThingsToPhotograph());
+                JSONObject jsonMessage = new JSONObject();
+                try {
+                    jsonMessage.put("contentType",MainActivity.startGameMessage);
+                    jsonMessage.put("content",jsonThingsToPhotographArray);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                //Send the list to the others as a byte[]
+                mainActivity.sendReliableMessage(
+                        mainActivity.googleApiClient,mainActivity,jsonMessage.toString().getBytes(),mainActivity.room.getRoomId(),null);
+
+                //Start wordsnapfragment
+                WordSnapFragment wordSnapFragment = new WordSnapFragment();
+                mainActivity.setWordSnapFragment(wordSnapFragment);
+                FragmentTransaction fragmentTransaction =
+                mainActivity.getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
             }
         });
 
