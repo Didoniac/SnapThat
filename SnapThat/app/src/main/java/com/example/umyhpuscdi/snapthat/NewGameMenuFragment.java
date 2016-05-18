@@ -74,7 +74,7 @@ public class NewGameMenuFragment extends Fragment {
                 JSONObject jsonMessage = new JSONObject();
                 try {
                     jsonMessage.put("contentType",MainActivity.startGameMessage);
-                    jsonMessage.put("content",jsonThingsToPhotographArray);
+                    jsonMessage.put("contents",jsonThingsToPhotographArray);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
