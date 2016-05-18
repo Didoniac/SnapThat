@@ -530,26 +530,6 @@ public class MainActivity
 
         Object receivedObject = null;
 
-        try {
-            receivedObject = Serializer.deserialize(b);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        if (receivedObject != null) {
-            if (receivedObject instanceof ReadySerializable) {
-                ReadySerializable receivedReadySerializable = (ReadySerializable) receivedObject;
-                //Find the player and change it to the new object.
-                for (int i = 0; i < playerDatas.size(); i++) {
-                    if (receivedReadySerializable.getPlayerID().equals(playerDatas.get(i).getPlayerID())) {
-                        playerDatas.get(i).setReady(receivedReadySerializable.isReady());
-                    }
-                }
-                readyUpListViewAdapter.notifyDataSetChanged();
-            }
-        } else {
             String receivedString = new String(b);
             try {
                 JSONObject jsonObject = new JSONObject(receivedString);
@@ -601,7 +581,6 @@ public class MainActivity
             // process message
     //        Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
     //        chooseThemeFragment.setImageTest(bitmap);
-        }
 
         /*Old testing of sending integers
         value = byteArrayToInt(b);
@@ -816,7 +795,7 @@ public class MainActivity
         return value;
     }
 
-    public void sendReadyDataToOthers() {
+/*    public void sendReadyDataToOthers() {
         byte[] message;
         ReadySerializable readySerializable = new ReadySerializable(playerData);
         try {
@@ -829,7 +808,7 @@ public class MainActivity
         // broadcast the object to the other players.
         sendReliableMessage(googleApiClient, this, message, room.getRoomId(), null);
     }
-
+*/
     public void photoAndSend(int indexOfCurrentWord) {
         latestPicIntent = CameraHandler.getPictureFileIntent(this, "SnapThat");
         startActivityForResult(latestPicIntent, IMG_TAKEN_CODE);
