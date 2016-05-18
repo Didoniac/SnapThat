@@ -49,7 +49,7 @@ public class VictoryFragment extends Fragment {
 
                 FragmentTransaction fragmentTransaction =
                         mainActivity.getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.addToBackStack(null);
+                //fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.replace(R.id.mainLayout, resultFragment).commit();
             }
         });
@@ -74,11 +74,8 @@ public class VictoryFragment extends Fragment {
             public void onClick(View v) {
                 //For rematch, go to NewGameMenuFragment while in the same room
 
-
-
                 FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
                 mainActivity.newGameMenuFragment = new NewGameMenuFragment();
-
 
                 fragmentTransaction.replace(R.id.mainLayout, mainActivity.newGameMenuFragment).commit();
 
@@ -90,7 +87,6 @@ public class VictoryFragment extends Fragment {
                     playerdata.setReady(false);
 
                 }
-
 
             }
         });

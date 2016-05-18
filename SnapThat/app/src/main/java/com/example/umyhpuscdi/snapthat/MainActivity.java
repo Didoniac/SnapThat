@@ -114,6 +114,7 @@ public class MainActivity
     protected ArrayAdapter resultsListViewAdapter;
     private boolean timeIsUp = false;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -551,7 +552,7 @@ public class MainActivity
                 setWordSnapFragment(wordSnapFragment);
                 FragmentTransaction fragmentTransaction =
                         getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.addToBackStack(null);
+                //fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
             } else {
                 try {
@@ -692,7 +693,9 @@ public class MainActivity
                 PlayerData playerData
                         = new PlayerData(participant.getParticipantId(), participant.getDisplayName());
                 playerDatas.add(playerData);
-                readyUpListViewAdapter.notifyDataSetChanged();
+                if(readyUpListViewAdapter!=null) {
+                    readyUpListViewAdapter.notifyDataSetChanged();
+                }
             }
 
             //Reset value for next loop
@@ -881,7 +884,7 @@ public class MainActivity
         ResultFragment resultFragment = new ResultFragment();
         setResultFragment(resultFragment);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.addToBackStack(null);
+        //fragmentTransaction.addToBackStack(null);
         fragmentTransaction.replace(R.id.mainLayout, resultFragment).commit();
     }
 
@@ -922,15 +925,16 @@ public class MainActivity
                 mainMenuFragment).commit();
     }
 
-    public void onBackPressed() {
+   /* public void onBackPressed() {
         if(getSupportFragmentManager().getBackStackEntryCount()>0) {
+
             getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.remove(newGameMenuFragment);
-            fragmentTransaction.commit();
+            //FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            //fragmentTransaction.remove(newGameMenuFragment);
+            //fragmentTransaction.commit();
         }
         else{
             super.onBackPressed();
         }
-    }
+    }*/
 }
