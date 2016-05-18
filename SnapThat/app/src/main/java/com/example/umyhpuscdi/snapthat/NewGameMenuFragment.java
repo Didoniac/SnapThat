@@ -107,12 +107,9 @@ public class NewGameMenuFragment extends Fragment {
     @Override
     public void onDestroy() {
         beingDestroyed = true;
-        super.onDestroy();
-        if (mainActivity.room != null) {
-            mainActivity.leave(mainActivity.googleApiClient, mainActivity, mainActivity.room.getRoomId());
-        }
         mainActivity.readyUpListViewAdapter = null;
         mainActivity.getPlayerDatas().clear();
+        super.onDestroy();
     }
 
 
