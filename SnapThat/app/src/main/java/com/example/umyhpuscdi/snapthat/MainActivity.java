@@ -559,7 +559,7 @@ public class MainActivity
                     JSONObject jsonObject = new JSONObject(receivedString);
                     if (jsonObject.get("contentType").equals("ImageSerializable")) {
                         JSONObject imageSerializableJsonObject
-                                = (JSONObject) jsonObject.get("contents");
+                                = new JSONObject((String)jsonObject.get("contents"));
                         Gson gson = new Gson();
                         ImageSerializable imageSerializable
                                 = gson.fromJson(imageSerializableJsonObject.toString(),ImageSerializable.class);
