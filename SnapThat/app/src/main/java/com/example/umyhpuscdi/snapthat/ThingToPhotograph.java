@@ -1,15 +1,22 @@
 package com.example.umyhpuscdi.snapthat;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 
 
 /**
@@ -28,9 +35,14 @@ public class ThingToPhotograph{
     private boolean accepted = false;
     private Uri mFilePath;
     private PostDownloadAPIGuessExecuteListener mListener;
+    private int index;
 
     public String getBestGuess() {
         return mBestGuess;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     public interface PostDownloadAPIGuessExecuteListener{
@@ -49,6 +61,29 @@ public class ThingToPhotograph{
         mTitle = title;
         mSearchTerm = searchTerm;
         mListener = listener;
+    }
+
+    public ThingToPhotograph(Bitmap bitmap, int index, boolean accepted, String bestGuess) {
+        this.accepted = accepted;
+        this.mBestGuess = bestGuess;
+        this.index = index;
+
+        String path = Environment.getExternalStorageDirectory().toString();
+        OutputStream fOut;
+        File file = new File(path, bestGuess + "_" + index + "_" + Calendar.getInstance().getTimeInMillis()); // the File to save to (unique name)
+        try {
+            fOut = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+            setmFilePath(Uri.fromFile(file));
+            try {
+                fOut.flush();
+                fOut.close(); // close the stream
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isPhotographed() {

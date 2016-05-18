@@ -17,6 +17,8 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import com.example.umyhpuscdi.snapthat.Comparators.ThingToPhotographIndexComparator;
+import com.example.umyhpuscdi.snapthat.Serializables.ImageSerializable;
 import com.example.umyhpuscdi.snapthat.Serializables.ReadySerializable;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,10 +35,15 @@ import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity
@@ -546,6 +553,38 @@ public class MainActivity
                         getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+            } else {
+                try {
+                    JSONObject jsonObject = new JSONObject(receivedString);
+                    if (jsonObject.get("contentType").equals("ImageSerializable")) {
+                        JSONObject imageSerializableJsonObject
+                                = (JSONObject) jsonObject.get("contents");
+                        Gson gson = new Gson();
+                        ImageSerializable imageSerializable
+                                = gson.fromJson(imageSerializableJsonObject.toString(),ImageSerializable.class);
+                        //Loop through the list of players to find who sent the object.
+                        PlayerData playerWhoSentTheData = null;
+                        for (int i=0; i<playerDatas.size(); i++) {
+                            if (playerDatas.get(i).getPlayerID().equals(imageSerializable.getPlayerId())) {
+                                playerWhoSentTheData = playerDatas.get(i);
+                                break;
+                            }
+                        }
+                        if (playerWhoSentTheData != null) {
+                            //add it at the end, then sort by indexes.
+                            playerWhoSentTheData.getThingsToPhotograph().add(
+                                    new ThingToPhotograph(
+                                            imageSerializable.getBitmap(),
+                                            imageSerializable.getIndex(),
+                                            imageSerializable.isAccepted(),
+                                            imageSerializable.getBestGuess()));
+                            Collections.sort(playerWhoSentTheData.getThingsToPhotograph(),new ThingToPhotographIndexComparator());
+                        }
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
             // process message
     //        Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
@@ -803,6 +842,28 @@ public class MainActivity
             toastText = bestGuess;
         }
         Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
+        makeAndSendImageSerializable(theThing);
+    }
+
+    private void makeAndSendImageSerializable(ThingToPhotograph thingToPhotograph) {
+        ImageSerializable imageSerializable = new ImageSerializable(
+                playerData.getPlayerID(),
+                thingToPhotograph.getBitmap(3),
+                playerData.getThingsToPhotograph().indexOf(thingToPhotograph),
+                thingToPhotograph.isAccepted(),
+                thingToPhotograph.getBestGuess());
+
+        Gson gson = new Gson();
+        String imageSerializableString = gson.toJson(imageSerializable);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("contentType","ImageSerializable");
+            jsonObject.put("contents",imageSerializableString);
+            byte[] bytes = jsonObject.toString().getBytes();
+            sendReliableMessage(googleApiClient,this,bytes,room.getRoomId(),null);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
