@@ -12,6 +12,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -74,9 +76,13 @@ public class NewGameMenuFragment extends Fragment {
 
                 //Convert list to JSON
                 ArrayList<String> stringArrayList = new ArrayList<>();
-                Gson gson = new Gson();
+                ObjectMapper objectMapper = new ObjectMapper();
                 for (int i=0; i < mainActivity.playerData.getThingsToPhotograph().size(); i++) {
-                    stringArrayList.add(gson.toJson(mainActivity.playerData.getThingsToPhotograph().get(i)));
+                    try {
+                        stringArrayList.add(objectMapper.writeValueAsString(mainActivity.playerData.getThingsToPhotograph().get(i)));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
                 }
                 JSONArray jsonThingsToPhotographArray = new JSONArray(stringArrayList);
                 JSONObject jsonMessage = new JSONObject();
