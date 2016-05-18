@@ -536,9 +536,13 @@ public class MainActivity
                 if (jsonObject.get("contentType").equals(startGameMessage)) {
                     ArrayList<ThingToPhotograph> newThingsToPhotograph = new ArrayList<>();
                     JSONArray jsonArray = (JSONArray) jsonObject.get("contents");
+                    String tempString;
+                    ThingToPhotograph tempThing;
                     Gson gson = new Gson();
                     for (int i = 0; i < jsonArray.length(); i++) {
-                        newThingsToPhotograph.add(gson.fromJson(jsonArray.getString(i),ThingToPhotograph.class));
+                        tempString = (String) jsonArray.get(i);
+                        tempThing = gson.fromJson(tempString,ThingToPhotograph.class);
+                        newThingsToPhotograph.add(tempThing);
                     }
 
                     playerData.setThingsToPhotograph(newThingsToPhotograph);

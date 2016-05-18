@@ -12,10 +12,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 /**
@@ -70,7 +73,12 @@ public class NewGameMenuFragment extends Fragment {
                 mainActivity.playerData.setThingsToPhotograph(mainActivity.playerData.getThingsToPhotograph());
 
                 //Convert list to JSON
-                JSONArray jsonThingsToPhotographArray = new JSONArray(mainActivity.playerData.getThingsToPhotograph());
+                ArrayList<String> stringArrayList = new ArrayList<>();
+                Gson gson = new Gson();
+                for (int i=0; i < mainActivity.playerData.getThingsToPhotograph().size(); i++) {
+                    stringArrayList.add(gson.toJson(mainActivity.playerData.getThingsToPhotograph().get(i)));
+                }
+                JSONArray jsonThingsToPhotographArray = new JSONArray(stringArrayList);
                 JSONObject jsonMessage = new JSONObject();
                 try {
                     jsonMessage.put("contentType",MainActivity.startGameMessage);
