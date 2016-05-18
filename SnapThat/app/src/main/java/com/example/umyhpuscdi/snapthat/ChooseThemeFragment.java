@@ -34,6 +34,7 @@ public class ChooseThemeFragment extends Fragment {
 
                 mainActivity.onBackPressed();
 
+
                 // Gammal testning
                 // mainActivity.photoAndSend();
             }
