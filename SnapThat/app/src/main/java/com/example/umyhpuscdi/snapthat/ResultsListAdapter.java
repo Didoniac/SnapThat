@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.games.Games;
+
 import java.util.ArrayList;
 
 /**
@@ -21,10 +23,12 @@ import java.util.ArrayList;
 public class ResultsListAdapter extends ArrayAdapter<PlayerData> {
 
     private int mThingIndex;
+    private MainActivity mainActivity;
 
     public ResultsListAdapter(Context context, int resource, ArrayList<PlayerData> playerDatas, int thingIndex) {
         super(context, resource, playerDatas);
         mThingIndex = thingIndex;
+        mainActivity = (MainActivity) context;
     }
 
     @Override
@@ -64,10 +68,12 @@ public class ResultsListAdapter extends ArrayAdapter<PlayerData> {
                 be able to find that bitmap and show it here.
              */
                     Bitmap bitmap = null;
-                    if (true) {// TODO if this listitem is current player
+                    //TODO I don't get why we need to do this check!? Should be stored in the same place by now. //Didrik
+                    // if this listitem is current player
+                    if (playerData.getPlayerID().equals(Games.Players.getCurrentPlayerId(mainActivity.googleApiClient))) {
                         bitmap = thing.getBitmap(10);
                     } else {//if it's another player
-
+                        bitmap = thing.getBitmap(10);
                     }
                     if (bitmap != null) {
                         ImageView photoImageView = (ImageView) v.findViewById(R.id.results_listitem_photo_imageview);
