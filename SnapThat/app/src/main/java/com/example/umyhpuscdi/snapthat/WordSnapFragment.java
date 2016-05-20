@@ -31,7 +31,6 @@ public class WordSnapFragment extends Fragment {
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.wordsnapfragment_layout, container, false);
-        mainActivity = (MainActivity) getActivity();
         mainActivity.timerStarted();
 
         timeLeftTextView = (TextView) rootView.findViewById(R.id.timeLeftTextView);
@@ -64,6 +63,7 @@ public class WordSnapFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mainActivity = (MainActivity) getActivity();
         thingsToPhotograph = mainActivity.playerData.getThingsToPhotograph();
 
         //120000 = 2 minuters timer. Andra parametern (1000) gör så att det dröjer 1 sekund mellan varje onTick.
