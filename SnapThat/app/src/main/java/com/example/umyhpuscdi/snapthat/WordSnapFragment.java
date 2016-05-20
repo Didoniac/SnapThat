@@ -28,10 +28,10 @@ public class WordSnapFragment extends Fragment {
     private MainActivity mainActivity;
     private Toast toast;
     private CountDownTimer timer;
+    private int index = 0;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.wordsnapfragment_layout, container, false);
-        mainActivity.timerStarted();
 
         timeLeftTextView = (TextView) rootView.findViewById(R.id.timeLeftTextView);
         wordTextView = (TextView) rootView.findViewById(R.id.wordTextView);
@@ -41,7 +41,7 @@ public class WordSnapFragment extends Fragment {
         timeLeftTextView.setText(R.string.time_left);
 
         //get the name of the thing to photograph
-        wordTextView.setText(thingsToPhotograph.get(0).getmTitle());
+        wordTextView.setText(thingsToPhotograph.get(index).getmTitle());
 
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,7 +53,7 @@ public class WordSnapFragment extends Fragment {
         snapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.photoAndSend(getIndexOfCurrentWord());
+                mainActivity.photoAndSend(getIndex());
             }
         });
 
@@ -62,9 +62,9 @@ public class WordSnapFragment extends Fragment {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mainActivity = (MainActivity) getActivity();
         thingsToPhotograph = mainActivity.playerData.getThingsToPhotograph();
+        mainActivity.timerStarted();
 
         //120000 = 2 minuters timer. Andra parametern (1000) gör så att det dröjer 1 sekund mellan varje onTick.
         //10000 = 10 sek for testing
@@ -132,11 +132,12 @@ public class WordSnapFragment extends Fragment {
      */
     public String showNextWord() {
 
-        int nextIndex = getIndexOfCurrentWord() + 1;
+        int nextIndex = getIndex() + 1;
 
         if (thingsToPhotograph.size() > nextIndex) {
             String newString = thingsToPhotograph.get(nextIndex).getmTitle();
             wordTextView.setText(newString);
+            index ++;
             return newString;
         } else {
             Toast.makeText(mainActivity, "There are no items left to photograph.",
@@ -146,13 +147,7 @@ public class WordSnapFragment extends Fragment {
         }
     }
 
-    public int getIndexOfCurrentWord(){
-        ArrayList<String> wordTitles = new ArrayList<>();
-        for (int i = 0; i < thingsToPhotograph.size(); i++) {
-            wordTitles.add(thingsToPhotograph.get(i).getmTitle());
-        }
-
-        int index = wordTitles.indexOf(wordTextView.getText().toString());
+    public int getIndex(){
         return index;
     }
 }

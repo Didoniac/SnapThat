@@ -260,7 +260,7 @@ public class MainActivity
                     return;
                 }
                 Uri latestPictureUri = CameraHandler.getFilePathFromIntent(latestPicIntent);
-                int latestWordIndex = wordSnapFragment.getIndexOfCurrentWord();
+                int latestWordIndex = wordSnapFragment.getIndex();
                 playerData.getThingsToPhotograph().get(latestWordIndex).setmFilePath(latestPictureUri);
                 playerData.getThingsToPhotograph().get(latestWordIndex).uploadAndCheck();
 
