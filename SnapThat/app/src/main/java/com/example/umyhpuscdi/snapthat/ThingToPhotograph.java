@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.File;
@@ -136,6 +137,7 @@ public class ThingToPhotograph{
         }
     }
 
+    @JsonIgnore
     public File getFile(){
         return new File(mFilePath.getPath());
     }
@@ -180,6 +182,7 @@ public class ThingToPhotograph{
         }
     }
 
+    @JsonIgnore
     private void setBestGuessFromJson(String jsonStringWithoutImage){
         int firstTextIndex = jsonStringWithoutImage.indexOf("text\":");
         int firstWordIndex = firstTextIndex + 7;

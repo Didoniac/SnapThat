@@ -3,9 +3,10 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="android:actionBarStyle"   tools:ignore="NewApi">@style/actionBarStyle</item>
+        <item name="android:actionBarStyle" tools:ignore="NewApi">@style/actionBarStyle</item>
         <item name="actionBarStyle">@style/actionBarStyle</item>
-        <item name="android:buttonStyle">@style/buttonStyle</item>
+        <item name="android:buttonStyle" tools:ignore="NewApi">@style/buttonStyle</item>
+        <item name="buttonStyle">@style/buttonStyle</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
