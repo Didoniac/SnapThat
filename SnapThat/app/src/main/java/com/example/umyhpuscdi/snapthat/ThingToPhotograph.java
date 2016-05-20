@@ -30,7 +30,7 @@ public class ThingToPhotograph{
 
     private String mSearchTerm;
     private String mTitle;
-    private boolean isPhotographed = false;
+    private boolean photographed = false;
     private boolean uploadedAndChecked = false;
     private String bestGuess = "unchecked";
     private boolean isUploading = false;
@@ -94,7 +94,7 @@ public class ThingToPhotograph{
     }
 
     public boolean isPhotographed() {
-        return isPhotographed;
+        return photographed;
     }
 
     public boolean isUploadedAndChecked() {
@@ -115,7 +115,7 @@ public class ThingToPhotograph{
 
     public void setmFilePath(Uri filePath) {
         this.mFilePath = filePath;
-        isPhotographed = true;
+        photographed = true;
     }
 
     /*
@@ -128,7 +128,7 @@ public class ThingToPhotograph{
     After that mListeners method "postAPIGuess" is run
      */
     public void uploadAndCheck(){
-        if(isPhotographed) {
+        if(photographed) {
             isUploading = true;
             PicToWordAsyncTask asyncTask = new PicToWordAsyncTask();
             asyncTask.execute(getFile());
@@ -143,7 +143,7 @@ public class ThingToPhotograph{
     }
 
     public Bitmap getBitmap(int inSampleSize){
-        if(isPhotographed) {
+        if(photographed) {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inSampleSize = inSampleSize;
 
