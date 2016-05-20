@@ -1,11 +1,30 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
+        <item name="android:actionBarStyle"   tools:ignore="NewApi">@style/actionBarStyle</item>
+        <item name="actionBarStyle">@style/actionBarStyle</item>
+        <item name="android:buttonStyle">@style/buttonStyle</item>
+        <item name="colorAccent">@color/colorAccent</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="actionBarStyle" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background"  tools:ignore="NewApi">@color/colorPrimary</item>
+        <item name="background">@color/colorPrimary</item>
+        <item name="android:titleTextStyle">@style/titleTextStyle</item>
+    </style>
+
+    <style name="buttonStyle" parent="android:style/Widget.Button">
+        <item name="android:background"  tools:ignore="NewApi">@color/colorPrimary</item>
+        <item name="background">@color/colorPrimary</item>
+        <item name="android:padding">@dimen/button_internal_padding</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="titleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/white</item>
+    </style>
 </resources>

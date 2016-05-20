@@ -20,6 +20,9 @@ import android.widget.Toast;
 import com.example.umyhpuscdi.snapthat.Comparators.ThingToPhotographIndexComparator;
 import com.example.umyhpuscdi.snapthat.Serializables.ImageSerializable;
 import com.example.umyhpuscdi.snapthat.Serializables.ReadySerializable;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
@@ -538,10 +541,10 @@ public class MainActivity
                     JSONArray jsonArray = (JSONArray) jsonObject.get("contents");
                     String tempString;
                     ThingToPhotograph tempThing;
-                    Gson gson = new Gson();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     for (int i = 0; i < jsonArray.length(); i++) {
                         tempString = (String) jsonArray.get(i);
-                        tempThing = gson.fromJson(tempString,ThingToPhotograph.class);
+                        tempThing = objectMapper.readValue(tempString,ThingToPhotograph.class);
                         newThingsToPhotograph.add(tempThing);
                     }
 
@@ -581,8 +584,14 @@ public class MainActivity
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+            } catch (JsonParseException e) {
+                e.printStackTrace();
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            // process message
+        // process message
     //        Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
     //        chooseThemeFragment.setImageTest(bitmap);
 
