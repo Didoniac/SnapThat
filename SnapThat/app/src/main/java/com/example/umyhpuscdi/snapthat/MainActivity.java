@@ -454,9 +454,11 @@ public class MainActivity
                                    byte[] message, String roomId, String participantId) {
 
         for (Participant p : room.getParticipants()) {
-            //Send the byte[] message to everyone
-            Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, this, message,
-                    room.getRoomId(), p.getParticipantId());
+            //Send the byte[] message to everyone but yourself.
+            if (!p.getParticipantId().equals(room.getParticipantId(Games.Players.getCurrentPlayer(googleApiClient).getPlayerId()))) {
+                Games.RealTimeMultiplayer.sendReliableMessage(googleApiClient, this, message,
+                        room.getRoomId(), p.getParticipantId());
+            }
         }
 
         return 0;
@@ -856,7 +858,7 @@ public class MainActivity
 
     private void makeAndSendImageSerializable(ThingToPhotograph thingToPhotograph) {
         ImageSerializable imageSerializable = new ImageSerializable(
-                playerData.getPlayerID(),
+                room.getParticipantId(Games.Players.getCurrentPlayer(googleApiClient).getPlayerId()),
                 thingToPhotograph.getBitmap(3),
                 playerData.getThingsToPhotograph().indexOf(thingToPhotograph),
                 thingToPhotograph.isAccepted(),

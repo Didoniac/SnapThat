@@ -16,13 +16,13 @@ public class ImageSerializable {
     private boolean accepted;
     private String bestGuess;
 
-    public ImageSerializable(String playerId,
+    public ImageSerializable(String participantId,
                              Bitmap bitmap,
                              int index,
                              boolean accepted,
                              String bestGuess) {
 
-        this.playerId = playerId;
+        this.playerId = participantId;
         this.index = index;
         this.accepted = accepted;
         this.bestGuess = bestGuess;

@@ -1,5 +1,7 @@
 package com.example.umyhpuscdi.snapthat;
 
+import android.util.Log;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

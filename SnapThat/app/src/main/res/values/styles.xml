@@ -21,6 +21,7 @@
     <style name="buttonStyle" parent="android:style/Widget.Button">
         <item name="android:background"  tools:ignore="NewApi">@drawable/bg_button</item>
         <item name="background">@drawable/bg_button</item>
+        <item name="android:minWidth">@dimen/button_minWidth</item>
         <item name="android:padding">@dimen/button_internal_padding</item>
         <item name="android:textColor">@color/white</item>
     </style>
