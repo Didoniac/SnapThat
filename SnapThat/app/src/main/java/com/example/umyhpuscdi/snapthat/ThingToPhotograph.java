@@ -35,9 +35,11 @@ public class ThingToPhotograph{
     private String bestGuess = "unchecked";
     private boolean uploading = false;
     private boolean accepted = false;
-    private Uri mFilePath;
     private PostDownloadAPIGuessExecuteListener mListener;
     private int index;
+
+    @JsonIgnore
+    private Uri mFilePath;
 
     public String getBestGuess() {
         return bestGuess;
@@ -109,13 +111,19 @@ public class ThingToPhotograph{
         return accepted;
     }
 
+    @JsonIgnore
     public Uri getmFilePath() {
         return mFilePath;
     }
 
+    @JsonIgnore
     public void setmFilePath(Uri filePath) {
         this.mFilePath = filePath;
         photographed = true;
+    }
+
+    public void setmListener(PostDownloadAPIGuessExecuteListener listener) {
+        this.mListener = listener;
     }
 
     /*

@@ -39,8 +39,6 @@ public class WordSnapFragment extends Fragment {
         skipButton = (Button) rootView.findViewById(R.id.skipButton);
         snapButton = (Button) rootView.findViewById(R.id.snapButton);
 
-        thingsToPhotograph = mainActivity.playerData.getThingsToPhotograph();
-
         timeLeftTextView.setText(R.string.time_left);
 
         //get the name of the thing to photograph
@@ -65,6 +63,8 @@ public class WordSnapFragment extends Fragment {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        thingsToPhotograph = mainActivity.playerData.getThingsToPhotograph();
 
         //120000 = 2 minuters timer. Andra parametern (1000) gör så att det dröjer 1 sekund mellan varje onTick.
         //10000 = 10 sek for testing

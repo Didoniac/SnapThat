@@ -545,6 +545,7 @@ public class MainActivity
                     for (int i = 0; i < jsonArray.length(); i++) {
                         tempString = (String) jsonArray.get(i);
                         tempThing = objectMapper.readValue(tempString,ThingToPhotograph.class);
+                        tempThing.setmListener(this);
                         newThingsToPhotograph.add(tempThing);
                     }
 
