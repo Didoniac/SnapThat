@@ -558,30 +558,44 @@ public class MainActivity
                             getSupportFragmentManager().beginTransaction();
                     //fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
-                } else {
-                    if (jsonObject.get("contentType").equals("ImageSerializable")) {
-                        JSONObject imageSerializableJsonObject
-                                = new JSONObject((String)jsonObject.get("contents"));
-                        Gson gson = new Gson();
-                        ImageSerializable imageSerializable
-                                = gson.fromJson(imageSerializableJsonObject.toString(),ImageSerializable.class);
-                        //Loop through the list of players to find who sent the object.
-                        PlayerData playerWhoSentTheData = null;
-                        for (int i=0; i<playerDatas.size(); i++) {
-                            if (playerDatas.get(i).getPlayerID().equals(imageSerializable.getPlayerId())) {
-                                playerWhoSentTheData = playerDatas.get(i);
-                                break;
-                            }
+                } else if (jsonObject.get("contentType").equals("ImageSerializable")) {
+                    JSONObject imageSerializableJsonObject
+                            = new JSONObject((String)jsonObject.get("contents"));
+                    Gson gson = new Gson();
+                    ImageSerializable imageSerializable
+                            = gson.fromJson(imageSerializableJsonObject.toString(),ImageSerializable.class);
+                    //Loop through the list of players to find who sent the object.
+                    PlayerData playerWhoSentTheData = null;
+                    for (int i=0; i<playerDatas.size(); i++) {
+                        if (playerDatas.get(i).getPlayerID().equals(imageSerializable.getPlayerId())) {
+                            playerWhoSentTheData = playerDatas.get(i);
+                            break;
                         }
-                        if (playerWhoSentTheData != null) {
-                            //add it at the end, then sort by indexes.
-                            playerWhoSentTheData.getThingsToPhotograph().add(
-                                    new ThingToPhotograph(
-                                            imageSerializable.getBitmapByteArrayString(),
-                                            imageSerializable.getIndex(),
-                                            imageSerializable.isAccepted(),
-                                            imageSerializable.getBestGuess()));
-                            Collections.sort(playerWhoSentTheData.getThingsToPhotograph(),new ThingToPhotographIndexComparator());
+                    }
+                    if (playerWhoSentTheData != null) {
+                        //add it at the end, then sort by indexes.
+                        playerWhoSentTheData.getThingsToPhotograph().add(
+                                new ThingToPhotograph(
+                                        imageSerializable.getBitmapByteArrayString(),
+                                        imageSerializable.getIndex(),
+                                        imageSerializable.isAccepted(),
+                                        imageSerializable.getBestGuess()));
+                        Collections.sort(playerWhoSentTheData.getThingsToPhotograph(),new ThingToPhotographIndexComparator());
+                    }
+                } else if (jsonObject.get("contentType").equals("ReadySerializable")) {
+                    JSONObject readySerializableJsonObject
+                            = new JSONObject((String)jsonObject.get("contents"));
+                    Gson gson = new Gson();
+                    ReadySerializable readySerializable
+                            = gson.fromJson(readySerializableJsonObject.toString(),ReadySerializable.class);
+                    //Loop through the list of players to find who sent the object.
+                    PlayerData playerWhoSentTheData = null;
+                    for (int i=0; i<playerDatas.size(); i++) {
+                        if (playerDatas.get(i).getPlayerID().equals(readySerializable.getPlayerID())) {
+                            playerWhoSentTheData = playerDatas.get(i);
+                            playerWhoSentTheData.setReady(readySerializable.isReady());
+                            readyUpListViewAdapter.notifyDataSetChanged();
+                            break;
                         }
                     }
                 }
@@ -809,20 +823,28 @@ public class MainActivity
         return value;
     }
 
-/*    public void sendReadyDataToOthers() {
+    public void sendReadyDataToOthers() {
         byte[] message;
-        ReadySerializable readySerializable = new ReadySerializable(playerData);
+        ReadySerializable readySerializable =
+                new ReadySerializable(room.getParticipantId(Games.Players.getCurrentPlayerId(googleApiClient)),playerData.isReady());
+        Gson gson = new Gson();
+        String readySerializableString = gson.toJson(readySerializable);
+
+        JSONObject jsonObject = new JSONObject();
         try {
-            message = Serializer.serialize(readySerializable);
-        } catch (IOException e) {
-            Log.e("TAG","Error sending player data.");
+            jsonObject.put("contentType","ReadySerializable");
+            jsonObject.put("contents",readySerializableString);
+
+        } catch (JSONException e) {
             e.printStackTrace();
-            return;
         }
+
+        message = jsonObject.toString().getBytes();
+
         // broadcast the object to the other players.
         sendReliableMessage(googleApiClient, this, message, room.getRoomId(), null);
     }
-*/
+
     public void photoAndSend(int indexOfCurrentWord) {
         latestPicIntent = CameraHandler.getPictureFileIntent(this, "SnapThat");
         startActivityForResult(latestPicIntent, IMG_TAKEN_CODE);

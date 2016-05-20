@@ -7,17 +7,14 @@ import java.io.Serializable;
 /**
  * Created by umyhpuscdi on 2016-05-16.
  */
-public class ReadySerializable implements Serializable {
+public class ReadySerializable {
 
     private String playerID;
     private boolean ready;
 
-    //For serialization
-    private static final long serialVersionUID =-3016869652413998727L;
-
-    public ReadySerializable(PlayerData playerData) {
-        this.playerID = playerData.getPlayerID();
-        this.ready = playerData.isReady();
+    public ReadySerializable(String participantId, boolean isReady) {
+        this.playerID = participantId;
+        this.ready = isReady;
     }
 
     public String getPlayerID() {
