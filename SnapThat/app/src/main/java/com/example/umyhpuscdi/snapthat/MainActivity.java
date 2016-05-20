@@ -439,7 +439,7 @@ public class MainActivity
 
         // remove the flag that keeps the screen on
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if (getSupportFragmentManager().getFragments().contains(newGameMenuFragment)
+        if (newGameMenuFragment != null
                 && !newGameMenuFragment.isBeingDestroyed()) {
             playerDatas.clear();
             getSupportFragmentManager().popBackStack();
@@ -745,15 +745,12 @@ public class MainActivity
 
     @Override
     public void onDisconnectedFromRoom(Room room) {
-        // leave the room
-        leave(googleApiClient, this, room.getRoomId());
-
         // show error message and return to main screen
         Toast.makeText(MainActivity.this, "You got disconnected.", Toast.LENGTH_SHORT).show();
-        getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        if(newGameMenuFragment!=null){
-            newGameMenuFragment.onDestroy();
-        }
+        onBackPressed();
+
+        // leave the room
+        leave(googleApiClient, this, room.getRoomId());
     }
 
     @Override
@@ -778,6 +775,7 @@ public class MainActivity
         Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
 
         if (shouldCancelGame(room)) {
+            nullifyFragments();
             leave(googleApiClient, this, room.getRoomId());
         }
     }
@@ -932,6 +930,25 @@ public class MainActivity
                 mainMenuFragment).commit();
     }
 
+    private void nullifyFragments() {
+        if(wordSnapFragment!=null){
+            getSupportFragmentManager().beginTransaction().remove(wordSnapFragment).commit();
+            wordSnapFragment = null;
+        }
+        if(resultFragment!=null){
+            getSupportFragmentManager().beginTransaction().remove(resultFragment).commit();
+            resultFragment = null;
+        }
+        if(victoryFragment!=null){
+            getSupportFragmentManager().beginTransaction().remove(victoryFragment).commit();
+            victoryFragment = null;
+        }
+        if (newGameMenuFragment != null) {
+            getSupportFragmentManager().beginTransaction().remove(newGameMenuFragment).commit();
+            newGameMenuFragment = null;
+        }
+    }
+
   public void onBackPressed() {
 
        if(inThemeView){
@@ -940,18 +957,8 @@ public class MainActivity
        }
        else {
            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-               if(wordSnapFragment!=null){
-                   getSupportFragmentManager().beginTransaction().remove(wordSnapFragment).commit();
-
-               }
-               if(resultFragment!=null){
-                   getSupportFragmentManager().beginTransaction().remove(resultFragment).commit();
-
-               }
-               if(victoryFragment!=null){
-                   getSupportFragmentManager().beginTransaction().remove(victoryFragment).commit();
-
-               }
+               playerDatas.clear();
+               nullifyFragments();
                super.onBackPressed();
 
                if (room!=null) {
