@@ -2,6 +2,7 @@ package com.example.umyhpuscdi.snapthat.Serializables;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 
@@ -10,7 +11,7 @@ import java.io.ByteArrayOutputStream;
  */
 public class ImageSerializable {
     private String playerId;
-    private Bitmap bitmap;
+    private String bitmapByteArrayString;
     private int index;
     private boolean accepted;
     private String bestGuess;
@@ -25,7 +26,7 @@ public class ImageSerializable {
         this.index = index;
         this.accepted = accepted;
         this.bestGuess = bestGuess;
-        setBitmap(bitmap);
+        setBitmapByteArrayString(bitmap);
     }
 
     public String getPlayerId() {
@@ -36,17 +37,15 @@ public class ImageSerializable {
         this.playerId = playerId;
     }
 
-    public Bitmap getBitmap() {
-        return bitmap;
+    public String getBitmapByteArrayString() {
+        return bitmapByteArrayString;
     }
 
-    public void setBitmap(Bitmap bitmap) {
+    public void setBitmapByteArrayString(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         if (bitmap.compress(Bitmap.CompressFormat.JPEG, 30, stream)) {
             byte[] byteArray = stream.toByteArray();
-            this.bitmap = BitmapFactory.decodeByteArray(byteArray,0,0);
-        } else {
-            this.bitmap = bitmap;
+            this.bitmapByteArrayString = Base64.encodeToString(byteArray, Base64.DEFAULT);
         }
     }
 

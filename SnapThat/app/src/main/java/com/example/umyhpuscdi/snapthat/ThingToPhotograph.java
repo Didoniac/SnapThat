@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -72,10 +73,12 @@ public class ThingToPhotograph{
 
     }
 
-    public ThingToPhotograph(Bitmap bitmap, int index, boolean accepted, String bestGuess) {
+    public ThingToPhotograph(String bitmapByteArrayString, int index, boolean accepted, String bestGuess) {
         this.accepted = accepted;
         this.bestGuess = bestGuess;
         this.index = index;
+
+        Bitmap bitmap = getBitmapFromString(bitmapByteArrayString);
 
         String path = Environment.getExternalStorageDirectory().toString();
         OutputStream fOut;
@@ -237,5 +240,13 @@ public class ThingToPhotograph{
         protected void onPostExecute(String jsonString) {
             onPostExecuteUploadAndCheck(jsonString);
         }
+    }
+
+    private Bitmap getBitmapFromString(String stringPicture) {
+        /*
+        * This Function converts the String back to Bitmap
+        * */
+        byte[] decodedString = Base64.decode(stringPicture, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }
 }

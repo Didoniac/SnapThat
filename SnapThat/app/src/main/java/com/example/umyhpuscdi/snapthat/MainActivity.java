@@ -575,7 +575,7 @@ public class MainActivity
                             //add it at the end, then sort by indexes.
                             playerWhoSentTheData.getThingsToPhotograph().add(
                                     new ThingToPhotograph(
-                                            imageSerializable.getBitmap(),
+                                            imageSerializable.getBitmapByteArrayString(),
                                             imageSerializable.getIndex(),
                                             imageSerializable.isAccepted(),
                                             imageSerializable.getBestGuess()));
