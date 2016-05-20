@@ -32,7 +32,7 @@ public class ThingToPhotograph{
     private String mTitle;
     private boolean isPhotographed = false;
     private boolean uploadedAndChecked = false;
-    private String mBestGuess = "unchecked";
+    private String bestGuess = "unchecked";
     private boolean isUploading = false;
     private boolean accepted = false;
     private Uri mFilePath;
@@ -40,7 +40,7 @@ public class ThingToPhotograph{
     private int index;
 
     public String getBestGuess() {
-        return mBestGuess;
+        return bestGuess;
     }
 
     public int getIndex() {
@@ -72,7 +72,7 @@ public class ThingToPhotograph{
 
     public ThingToPhotograph(Bitmap bitmap, int index, boolean accepted, String bestGuess) {
         this.accepted = accepted;
-        this.mBestGuess = bestGuess;
+        this.bestGuess = bestGuess;
         this.index = index;
 
         String path = Environment.getExternalStorageDirectory().toString();
@@ -171,7 +171,7 @@ public class ThingToPhotograph{
         uploadedAndChecked = true;
         isUploading = false;
         setBestGuessFromJson(jsonString);
-        mListener.postAPIGuess(this, accepted, mBestGuess);
+        mListener.postAPIGuess(this, accepted, bestGuess);
     }
 
     private boolean doesJsonContainWord(String jsonString){
@@ -188,7 +188,7 @@ public class ThingToPhotograph{
         int firstWordIndex = firstTextIndex + 7;
         String firstWordPlusJunk = jsonStringWithoutImage.substring(firstWordIndex);
         int firstWordEndIndex = firstWordPlusJunk.indexOf('"');
-        mBestGuess = firstWordPlusJunk.substring(0, firstWordEndIndex);
+        bestGuess = firstWordPlusJunk.substring(0, firstWordEndIndex);
     }
 
     private class PicToWordAsyncTask extends AsyncTask<File, Void, String>{
