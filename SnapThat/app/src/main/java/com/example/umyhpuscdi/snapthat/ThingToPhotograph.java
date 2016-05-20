@@ -33,7 +33,7 @@ public class ThingToPhotograph{
     private boolean photographed = false;
     private boolean uploadedAndChecked = false;
     private String bestGuess = "unchecked";
-    private boolean isUploading = false;
+    private boolean uploading = false;
     private boolean accepted = false;
     private Uri mFilePath;
     private PostDownloadAPIGuessExecuteListener mListener;
@@ -102,7 +102,7 @@ public class ThingToPhotograph{
     }
 
     public boolean isUploading() {
-        return isUploading;
+        return uploading;
     }
 
     public boolean isAccepted() {
@@ -129,7 +129,7 @@ public class ThingToPhotograph{
      */
     public void uploadAndCheck(){
         if(photographed) {
-            isUploading = true;
+            uploading = true;
             PicToWordAsyncTask asyncTask = new PicToWordAsyncTask();
             asyncTask.execute(getFile());
         }else {
@@ -169,7 +169,7 @@ public class ThingToPhotograph{
             }
         }
         uploadedAndChecked = true;
-        isUploading = false;
+        uploading = false;
         setBestGuessFromJson(jsonString);
         mListener.postAPIGuess(this, accepted, bestGuess);
     }
