@@ -1017,7 +1017,7 @@ public class MainActivity
        }
        else {
            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-               playerDatas.clear();
+               clearPlayerDatas();
                playerData.setReady(false);
                nullifyFragments();
                super.onBackPressed();
@@ -1029,5 +1029,16 @@ public class MainActivity
                super.onBackPressed();
            }
        }
+    }
+
+    private void clearPlayerDatas() {
+        ArrayList<ThingToPhotograph> thingToPhotographs;
+        for (int i = 0; i < playerDatas.size(); i++) {
+            thingToPhotographs = playerDatas.get(i).getThingsToPhotograph();
+            for (int j = 0; j < thingToPhotographs.size(); j++) {
+                thingToPhotographs.get(j).removeSavedImageFile();
+            }
+        }
+        playerDatas.clear();
     }
 }

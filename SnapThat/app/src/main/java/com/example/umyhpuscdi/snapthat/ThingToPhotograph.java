@@ -80,7 +80,9 @@ public class ThingToPhotograph{
 
         Bitmap bitmap = getBitmapFromString(bitmapByteArrayString);
 
-        String path = Environment.getExternalStorageDirectory().toString();
+        String path =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
+                + "/SnapThat/";
         OutputStream fOut;
         File file = new File(path, bestGuess + "_" + index + "_" + Calendar.getInstance().getTimeInMillis()); // the File to save to (unique name)
         try {
@@ -248,5 +250,17 @@ public class ThingToPhotograph{
         * */
         byte[] decodedString = Base64.decode(stringPicture, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+    }
+
+    public void removeSavedImageFile() {
+        if (mFilePath != null) {
+            File file = new File(mFilePath.getPath());
+            boolean deleted = file.delete();
+            if (deleted) {
+                Log.i("TAG", "Removed file successfully: " + mFilePath.getPath());
+            } else {
+                Log.e("TAG", "Failed to remove file: " + mFilePath.getPath());
+            }
+        }
     }
 }

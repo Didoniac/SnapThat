@@ -66,7 +66,8 @@ public class ReadyUpListAdapter extends ArrayAdapter<PlayerData> {
                 readyCheckBox.setOnClickListener(onClickListener);
                 readyCheckBox.setChecked(currentPlayerData.isReady());
 
-                if (currentPlayerData.getPlayerID().equals(mainActivity.playerData.getPlayerID())) {
+                if (currentPlayerData.getPlayerID().equals(mainActivity.playerData.getPlayerID())
+                        && mainActivity.newGameMenuFragment.infoMessageTextView.getText().equals(getContext().getString(R.string.connected_to_room))) {
                     readyCheckBox.setEnabled(true);
                 } else {
                     readyCheckBox.setEnabled(false);
