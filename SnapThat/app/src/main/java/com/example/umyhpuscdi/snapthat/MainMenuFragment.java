@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.games.Games;
+
 /**
  * Created by umyhpuscdi on 2016-05-02.
  */
@@ -15,6 +17,7 @@ public class MainMenuFragment extends Fragment {
 
     private TextView signedInOrOutTextView;
     private Button quickGameButton, invitePlayersButton, showInvitationsButton, quitButton;
+    protected Button signInButton, signOutButton;
     private boolean googlePlayConnected = false;
     private boolean cameraPermissionGranted = false;
     private MainActivity mainActivity;
@@ -29,6 +32,27 @@ public class MainMenuFragment extends Fragment {
         invitePlayersButton = (Button) rootView.findViewById(R.id.invitePlayersButton);
         showInvitationsButton = (Button) rootView.findViewById(R.id.showInvitationsButton);
         quitButton = (Button) rootView.findViewById(R.id.quitButton);
+        signInButton = (Button) rootView.findViewById(R.id.signInButton);
+        signOutButton = (Button) rootView.findViewById(R.id.signOutButton);
+
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mainActivity.createGoogleAPIClient();
+                mainActivity.googleApiClient.connect();
+            }
+        });
+
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Games.signOut(mainActivity.googleApiClient);
+                setGooglePlayConnected(false);
+                signOutButton.setVisibility(View.GONE);
+                signInButton.setVisibility(View.VISIBLE);
+                signedInOrOutTextView.setText(R.string.signed_out);
+            }
+        });
 
         quickGameButton.setOnClickListener(new View.OnClickListener() {
             @Override

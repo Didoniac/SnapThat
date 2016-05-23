@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -296,8 +297,12 @@ public class MainActivity
         displayName = player.getDisplayName();
 
         Toast.makeText(MainActivity.this, "Welcome " + displayName + "!", Toast.LENGTH_SHORT).show();
-        mainMenuFragment.setGreeting(getString(R.string.signed_in));
-        mainMenuFragment.setGooglePlayConnected(true);
+        if (mainMenuFragment != null) {
+            mainMenuFragment.setGreeting(getString(R.string.signed_in));
+            mainMenuFragment.setGooglePlayConnected(true);
+            mainMenuFragment.signInButton.setVisibility(View.GONE);
+            mainMenuFragment.signOutButton.setVisibility(View.VISIBLE);
+        }
 
         //If player already accepted invite
         if (connectionHint != null) {
@@ -970,7 +975,7 @@ public class MainActivity
         }
     }
 
-    private void createGoogleAPIClient() {
+    protected void createGoogleAPIClient() {
         // Create the Google API Client with access to Games
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)

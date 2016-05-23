@@ -28,4 +28,6 @@
     <string name="waiting_for_players">Waiting for players.</string>
     <string name="take_a_photo_of">Take a photo of:</string>
     <string name="ai_best_guess">AI best guess:</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_out">Sign out</string>
 </resources>
