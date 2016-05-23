@@ -9,6 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:text="@string/theme"
@@ -17,6 +18,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/themeTextView"
         android:text="@string/default_theme"

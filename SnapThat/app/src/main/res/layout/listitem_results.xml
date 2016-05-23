@@ -8,12 +8,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <TextView
-            android:text="test"
+            android:text="@string/username"
             android:id="@+id/results_listitem_username_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <TextView
-            android:text="test"
+            android:text="@string/ai_best_guess"
             android:id="@+id/results_listitem_bestGuess_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

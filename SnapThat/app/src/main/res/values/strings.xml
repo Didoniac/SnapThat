@@ -26,4 +26,6 @@
     <string name="connecting_to_room">Connecting.</string>
     <string name="connected_to_room">Connected.</string>
     <string name="waiting_for_players">Waiting for players.</string>
+    <string name="take_a_photo_of">Take a photo of:</string>
+    <string name="ai_best_guess">AI best guess:</string>
 </resources>

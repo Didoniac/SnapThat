@@ -22,6 +22,14 @@ public class ReadyUpListAdapter extends ArrayAdapter<PlayerData> {
         public void onClick(View v) {
             boolean isChecked = ((CheckBox)v).isChecked();
             mainActivity.playerData.setReady(isChecked);
+
+            //Enable go button if everyone is ready.
+            if (mainActivity.shouldStartGame()) {
+                mainActivity.newGameMenuFragment.goButton.setEnabled(true);
+            } else {
+                mainActivity.newGameMenuFragment.goButton.setEnabled(false);
+            }
+
             //send message to the other players that the player has readied up!
             mainActivity.sendReadyDataToOthers();
         }

@@ -59,7 +59,8 @@ public class ResultsListAdapter extends ArrayAdapter<PlayerData> {
                     thing = playerData.getThingsToPhotograph().get(mThingIndex);
 
                     TextView guessTextView = (TextView) v.findViewById(R.id.results_listitem_bestGuess_textview);
-                    guessTextView.setText(thing.getBestGuess());
+                    String s = mainActivity.getString(R.string.ai_best_guess) + "\n" + thing.getBestGuess();
+                    guessTextView.setText(s);
 
 
             /*TODO

@@ -589,7 +589,7 @@ public class MainActivity
                     ReadySerializable readySerializable
                             = gson.fromJson(readySerializableJsonObject.toString(),ReadySerializable.class);
                     //Loop through the list of players to find who sent the object.
-                    PlayerData playerWhoSentTheData = null;
+                    PlayerData playerWhoSentTheData;
                     for (int i=0; i<playerDatas.size(); i++) {
                         if (playerDatas.get(i).getPlayerID().equals(readySerializable.getPlayerID())) {
                             playerWhoSentTheData = playerDatas.get(i);
@@ -597,6 +597,11 @@ public class MainActivity
                             readyUpListViewAdapter.notifyDataSetChanged();
                             break;
                         }
+                    }
+                    if (shouldStartGame()) {
+                        newGameMenuFragment.goButton.setEnabled(true);
+                    } else {
+                        newGameMenuFragment.goButton.setEnabled(false);
                     }
                 }
             } catch (JSONException e) {
@@ -628,20 +633,28 @@ public class MainActivity
         return value;
     }
 
-    // returns whether there are enough players to start the game
-/*
-        BUGGAD OCH ONÖDIG
+    // returns whether there are enough players to start the game & everyone is ready.
 
-        public boolean shouldStartGame() {
+    public boolean shouldStartGame() {
         int connectedPlayers = 0;
         if (room != null) {
             for (Participant p : room.getParticipants()) {
                 if (p.isConnectedToRoom()) ++connectedPlayers;
             }
         }
-        return connectedPlayers >= MIN_PLAYERS;
+        boolean everyoneIsReady = true;
+        for (int i = 0; i < playerDatas.size(); i++) {
+            if (!playerDatas.get(i).isReady()) {
+                everyoneIsReady = false;
+            }
+        }
+
+        if (connectedPlayers >= MIN_PLAYERS && everyoneIsReady) {
+            return  true;
+        } else {
+            return false;
+        }
     }
-    */
 
     /**
      * Returns whether the room is in a state where the game should be canceled.
@@ -756,7 +769,6 @@ public class MainActivity
         if (!playerDatas.contains(playerData)) {
             playerDatas.add(0, playerData);
         }
-        newGameMenuFragment.goButton.setEnabled(true);
         readyUpListViewAdapter.notifyDataSetChanged();
     }
 
@@ -983,6 +995,7 @@ public class MainActivity
        else {
            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                playerDatas.clear();
+               playerData.setReady(false);
                nullifyFragments();
                super.onBackPressed();
 
