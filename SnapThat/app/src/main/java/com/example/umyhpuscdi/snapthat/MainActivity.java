@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.example.umyhpuscdi.snapthat.Comparators.ThingToPhotographIndexComparator;
 import com.example.umyhpuscdi.snapthat.Serializables.ImageSerializable;
+import com.example.umyhpuscdi.snapthat.Serializables.PlayerMetaDataSerializable;
 import com.example.umyhpuscdi.snapthat.Serializables.ReadySerializable;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -93,6 +94,11 @@ public class MainActivity
     protected final static int MIN_PLAYERS = 2;
     private final static int MAX_PLAYERS = 4;
 
+    //Duration of game
+    //120000 = 2 minuters timer. Andra parametern (1000) gör så att det dröjer 1 sekund mellan varje onTick.
+    //10000 = 10 sek for testing
+    public final static int GAME_DURATION = 120000;
+
     // Are we currently resolving a connection failure?
     private boolean resolvingConnectionFailure = false;
 
@@ -117,9 +123,10 @@ public class MainActivity
     private Intent pictureIntent;
 
     protected ArrayAdapter readyUpListViewAdapter;
-    protected ArrayAdapter resultsListViewAdapter;
+    protected ResultsListAdapter resultsListViewAdapter;
     private boolean timeIsUp = false;
     protected boolean inThemeView = false;
+    public ArrayList<PlayerMetaDataSerializable> playerMetaDatas;
 
 
     @Override
@@ -273,6 +280,28 @@ public class MainActivity
 
     public void endCurrentGame() {
         goToResultViewFragment();
+        makeAndSendPlayerMetaData();
+    }
+
+    private void makeAndSendPlayerMetaData() {
+        String participantId = room.getParticipantId(Games.Players.getCurrentPlayer(googleApiClient).getPlayerId());
+        ArrayList<ThingToPhotograph> myLocalThingsToPhotograph = playerData.getThingsToPhotograph();
+        String playerName = "my user name"; //TODO put in this ones participant name
+
+        PlayerMetaDataSerializable playerMetaDataSerializable = new PlayerMetaDataSerializable(
+                participantId, myLocalThingsToPhotograph, playerName);
+
+        Gson gson = new Gson();
+        String playerMetaDataSerializableString = gson.toJson(playerMetaDataSerializable);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("contentType","PlayerMetaDataSerializable");
+            jsonObject.put("contents",playerMetaDataSerializableString);
+            byte[] bytes = jsonObject.toString().getBytes();
+            sendReliableMessage(googleApiClient,this,bytes,room.getRoomId(),null);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -596,6 +625,19 @@ public class MainActivity
                             playerWhoSentTheData.setReady(readySerializable.isReady());
                             readyUpListViewAdapter.notifyDataSetChanged();
                             break;
+                        }
+                    }
+                } else if(jsonObject.get("contentType").equals("PlayerMetaDataSerializable")){
+                    JSONObject playerMetaDataJsonObject =
+                            new JSONObject((String)jsonObject.get("contents"));
+                    Gson gson = new Gson();
+                    PlayerMetaDataSerializable playerMetaDataSerializable =
+                            gson.fromJson(playerMetaDataJsonObject.toString(),
+                                    PlayerMetaDataSerializable.class);
+                    playerMetaDatas.add(playerMetaDataSerializable);
+                    if(resultFragment != null) {
+                        if(resultsListViewAdapter != null){
+                            resultsListViewAdapter.notifyDataSetChanged();
                         }
                     }
                 }

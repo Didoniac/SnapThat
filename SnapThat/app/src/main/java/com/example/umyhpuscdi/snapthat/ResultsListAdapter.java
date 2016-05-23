@@ -13,7 +13,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.umyhpuscdi.snapthat.Serializables.PlayerMetaDataSerializable;
 import com.google.android.gms.games.Games;
+import com.google.android.gms.games.Player;
 
 import java.util.ArrayList;
 
@@ -42,62 +44,94 @@ public class ResultsListAdapter extends ArrayAdapter<PlayerData> {
             v = inflater.inflate(R.layout.listitem_results, parent, false);
         }
 
+        //Find child-views
+        TextView usernameTextView = (TextView) v.findViewById(R.id.results_listitem_username_textview);
+        TextView guessTextView = (TextView) v.findViewById(R.id.results_listitem_bestGuess_textview);
+        ImageView photoImageView = (ImageView) v.findViewById(R.id.results_listitem_photo_imageview);
+        ImageView correctImageView = (ImageView) v.findViewById(R.id.results_listitem_correctness_imageview);
+
+        //Set standard values
+        String userName = "user not found";
+        String guessText = "guess not found";
+        Bitmap photoBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.no_photo);
+        Bitmap correctBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.red_cross);
+
+        //Get variables from playerData and playerMetaData
         PlayerData playerData = getItem(position);
+        PlayerMetaDataSerializable playerMetaData = getPlayerMetaData(playerData);
+        if(playerMetaData != null){
+            //Username
+            userName = playerMetaData.getmPlayerName();
 
-        if (playerData != null) {
+            ThingToPhotograph metaDataThing =
+                    playerMetaData.getThingToPhotographs().get(mThingIndex);
+            if(metaDataThing.isPhotographed()){
+                photoBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.loading);
+                correctBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.loading_circle);
+            }
+        }
+        if(playerData != null){
 
-            TextView usernameTextView = (TextView) v.findViewById(R.id.results_listitem_username_textview);
-            if (usernameTextView != null) { //TODO why is this check needed?
-                usernameTextView.setText(playerData.getUsername());
+            //Get username
+            if(playerData.getUsername() != null){
+                userName = playerData.getUsername();
             }
 
-            ThingToPhotograph thing = null;
-            if(playerData.getThingsToPhotograph() == null){
-                Toast.makeText(parent.getContext(), "getThingsToPhotograph returns null position:" + position, Toast.LENGTH_SHORT).show();
-            }else {
-                if(playerData.getThingsToPhotograph().size()>0) {
-                    thing = playerData.getThingsToPhotograph().get(mThingIndex);
-
-                    TextView guessTextView = (TextView) v.findViewById(R.id.results_listitem_bestGuess_textview);
-                    guessTextView.setText(thing.getBestGuess());
-
-
-            /*TODO
-                When a player takes a photo, it should be sent as a small compressed bitmap to
-                the others (in mainactivity). If this listitem shows a different player, this should
-                be able to find that bitmap and show it here.
+            /*
+            Try to get the current thingToPhotograph from a player. If the player has not taken any photos
+            this try will not work and thingToPhotograph will be null.
              */
-                    Bitmap bitmap = null;
-                    //TODO I don't get why we need to do this check!? Should be stored in the same place by now. //Didrik
-                    // if this listitem is current player
-                    if (playerData.getPlayerID().equals(Games.Players.getCurrentPlayerId(mainActivity.googleApiClient))) {
-                        bitmap = thing.getBitmap(10);
-                    } else {//if it's another player
-                        bitmap = thing.getBitmap(10);
-                    }
-                    if (bitmap != null) {
-                        ImageView photoImageView = (ImageView) v.findViewById(R.id.results_listitem_photo_imageview);
-                        photoImageView.setImageBitmap(bitmap);
-                    }
+            ThingToPhotograph thingToPhotograph = null;
+            try {
+                thingToPhotograph = playerData.getThingsToPhotograph().get(mThingIndex);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            if(thingToPhotograph != null){
 
-                    Bitmap correctBitmap = null;
-                    if (thing.isUploadedAndChecked()) {
-                        if (thing.isAccepted()) {
-                            correctBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.green_check);
-                        } else {
-                            correctBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.red_cross);
-                        }
-                    } else {
-                        //This should run if the photo is uploading or has just been uploaded while this if was run
+                //Get best guess
+                guessText = thingToPhotograph.getBestGuess();
+
+                //Get photo
+                //TODO find perfect value to size bitmaps here
+                Bitmap getBitmapResult = thingToPhotograph.getBitmap(10);
+                if(getBitmapResult != null){
+                    photoBitmap = getBitmapResult;
+                }
+
+                //Get correctness
+                if(thingToPhotograph.isPhotographed()){
+                    if(thingToPhotograph.isAccepted()){
+                        correctBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.green_check);
+                    }else if(thingToPhotograph.isUploading()){
                         correctBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.loading_circle);
-                    }
-                    if (correctBitmap != null) {
-                        ImageView correctImageView = (ImageView) v.findViewById(R.id.results_listitem_correctness_imageview);
-                        correctImageView.setImageBitmap(bitmap);
                     }
                 }
             }
         }
+
+        //Set values to views
+        usernameTextView.setText(userName);
+        guessTextView.setText(guessText);
+        photoImageView.setImageBitmap(photoBitmap);
+        correctImageView.setImageBitmap(correctBitmap);
+
         return v;
+    }
+
+    private PlayerMetaDataSerializable getPlayerMetaData(PlayerData playerData) {
+        String participantId = playerData.getPlayerID();
+        PlayerMetaDataSerializable playerMetaData;
+        for (int i = 0; i < mainActivity.playerMetaDatas.size(); i++) {
+            playerMetaData = mainActivity.playerMetaDatas.get(i);
+            if(playerMetaData.getParticipantId().equals(participantId)){
+                return playerMetaData;
+            }
+        }
+        return null;
+    }
+
+    public void setmThingIndex(int mThingIndex) {
+        this.mThingIndex = mThingIndex;
     }
 }

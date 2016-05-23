@@ -57,14 +57,37 @@ public class ResultFragment extends Fragment {
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //change listview content to previous word for all players
+                if(mCurrentWordIndex > 0){
+                    mCurrentWordIndex--;
+                    wordTextView.setText(mainActivity.playerData.getThingsToPhotograph().get(mCurrentWordIndex).getmTitle());
+                    mainActivity.resultsListViewAdapter.setmThingIndex(mCurrentWordIndex);
+                    mainActivity.resultsListViewAdapter.notifyDataSetChanged();
+                }
+                if(mCurrentWordIndex == 0){
+                    prevButton.setEnabled(false);
+                }
+                if(mCurrentWordIndex < mainActivity.playerData.getThingsToPhotograph().size()){
+                    nextButton.setEnabled(true);
+                }
             }
         });
+        prevButton.setEnabled(false);
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //change listview content to next word for all players
+                if(mCurrentWordIndex < mainActivity.playerData.getThingsToPhotograph().size()-1){
+                    mCurrentWordIndex++;
+                    wordTextView.setText(mainActivity.playerData.getThingsToPhotograph().get(mCurrentWordIndex).getmTitle());
+                    mainActivity.resultsListViewAdapter.setmThingIndex(mCurrentWordIndex);
+                    mainActivity.resultsListViewAdapter.notifyDataSetChanged();
+                }
+                if(mCurrentWordIndex == mainActivity.playerData.getThingsToPhotograph().size()-1){
+                    nextButton.setEnabled(false);
+                }
+                if(mCurrentWordIndex > 0){
+                    prevButton.setEnabled(true);
+                }
             }
         });
 
@@ -81,8 +104,14 @@ public class ResultFragment extends Fragment {
 
             }
         });
+        /*
+        TODO
+        if 'photoes are being uploaded'
+        disable scorebutton
+        else
+        enable it
+         */
 
         return rootView;
     }
-
 }
