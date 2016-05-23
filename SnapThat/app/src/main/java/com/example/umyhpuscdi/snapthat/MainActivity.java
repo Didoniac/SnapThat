@@ -1,5 +1,6 @@
 package com.example.umyhpuscdi.snapthat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -45,7 +46,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,6 +63,7 @@ public class MainActivity
         ThingToPhotograph.PostDownloadAPIGuessExecuteListener{
 
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 0;
+    private static final int MY_PERMISSIONS_REQUEST_STORAGE = 1;
     private MainMenuFragment mainMenuFragment;
     private ChooseThemeFragment chooseThemeFragment;
     private WordSnapFragment wordSnapFragment;
@@ -131,13 +132,22 @@ public class MainActivity
         createGoogleAPIClient();
     }
 
-    private void cameraPermission() {
+    private void askForPermissions() {
         int permissionCheck = ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA);
+
         if(permissionCheck != PackageManager.PERMISSION_GRANTED){
             //ask for permission
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
-        }else {
+        } else {
             mainMenuFragment.setCameraPermissionGranted(true);
+        }
+
+        int permissionCheck2 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permissionCheck2 != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_STORAGE);
+        } else {
+            mainMenuFragment.setStoragePermissionGranted(true);
         }
     }
 
@@ -149,11 +159,11 @@ public class MainActivity
     protected void onStart() {
         super.onStart();
 
-        cameraPermission();
+        askForPermissions();
 
         if (!googleApiClient.isConnected()) {
             Log.d("TAG", "onStart(): connecting");
-        googleApiClient.connect();
+            googleApiClient.connect();
         }
     }
 
@@ -941,14 +951,22 @@ public class MainActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode){
-            case MY_PERMISSIONS_REQUEST_CAMERA: {
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            case MY_PERMISSIONS_REQUEST_CAMERA:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //Permission granted
                     mainMenuFragment.setCameraPermissionGranted(true);
-                }else {
-                    cameraPermission();
+                } else {
+                    askForPermissions();
                 }
-            }
+                break;
+            case MY_PERMISSIONS_REQUEST_STORAGE:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permission granted
+                    mainMenuFragment.setStoragePermissionGranted(true);
+                } else {
+                    askForPermissions();
+                }
+                break;
         }
     }
 

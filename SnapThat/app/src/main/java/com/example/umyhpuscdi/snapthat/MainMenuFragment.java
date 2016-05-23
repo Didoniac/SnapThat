@@ -18,6 +18,7 @@ public class MainMenuFragment extends Fragment {
     private boolean googlePlayConnected = false;
     private boolean cameraPermissionGranted = false;
     private MainActivity mainActivity;
+    private boolean storagePermissionGranted = false;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.mainmenufragment_layout,container,false);
@@ -67,7 +68,7 @@ public class MainMenuFragment extends Fragment {
     }
 
     public void updateNewGameButtonsClickableState() {
-        if(this.googlePlayConnected && this.cameraPermissionGranted) {
+        if(googlePlayConnected && cameraPermissionGranted && storagePermissionGranted) {
             try {
                 enableButtons();
             } catch (NullPointerException e) {
@@ -103,6 +104,11 @@ public class MainMenuFragment extends Fragment {
 
     public void setCameraPermissionGranted(boolean permissionGranted){
         this.cameraPermissionGranted = permissionGranted;
+        updateNewGameButtonsClickableState();
+    }
+
+    public void setStoragePermissionGranted(boolean permissionGranted) {
+        this.storagePermissionGranted = permissionGranted;
         updateNewGameButtonsClickableState();
     }
 
