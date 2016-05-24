@@ -95,8 +95,8 @@ public class MainActivity
     private final static int RC_INVITATION_INBOX = 10001;
 
     //Add 1 to quick game when patching game to users.
-    protected final static int VARIANT_QUICK_GAME = 1;
-    protected final static int VARIANT_INVITE_GAME = 0;
+    protected final static int VARIANT_QUICK_GAME = 2;
+    protected final static int VARIANT_INVITE_GAME = 1;
 
     // at least 2 players required for our game
     protected final static int MIN_PLAYERS = 2;
@@ -417,6 +417,7 @@ public class MainActivity
             }
 
         } else if (statusCode == GamesStatusCodes.STATUS_REAL_TIME_CONNECTION_FAILED) {
+            Toast.makeText(MainActivity.this, "Connection failure. Attempting to reconnect.", Toast.LENGTH_SHORT).show();
             googleApiClient.reconnect();
         } else {
             // let screen go to sleep
@@ -436,12 +437,15 @@ public class MainActivity
                 playerDatas.add(0,playerData);
             }
 
+        } else if (statusCode == GamesStatusCodes.STATUS_REAL_TIME_CONNECTION_FAILED) {
+            Toast.makeText(MainActivity.this, "Connection failure. Attempting to reconnect.", Toast.LENGTH_SHORT).show();
+            googleApiClient.reconnect();
         } else {
             // let screen go to sleep
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
             //show error message, return to main screen.
-            Toast.makeText(MainActivity.this, "Error in onJoinedRoom!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Error in onJoinedRoom! (" + statusCode + ")", Toast.LENGTH_SHORT).show();
             getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
