@@ -122,10 +122,12 @@ public class ResultsListAdapter extends ArrayAdapter<PlayerData> {
     private PlayerMetaDataSerializable getPlayerMetaData(PlayerData playerData) {
         String participantId = playerData.getPlayerID();
         PlayerMetaDataSerializable playerMetaData;
-        for (int i = 0; i < mainActivity.playerMetaDatas.size(); i++) {
-            playerMetaData = mainActivity.playerMetaDatas.get(i);
-            if(playerMetaData.getParticipantId().equals(participantId)){
-                return playerMetaData;
+        if(mainActivity.playerMetaDatas != null) {
+            for (int i = 0; i < mainActivity.playerMetaDatas.size(); i++) {
+                playerMetaData = mainActivity.playerMetaDatas.get(i);
+                if (playerMetaData.getParticipantId().equals(participantId)) {
+                    return playerMetaData;
+                }
             }
         }
         return null;

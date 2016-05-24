@@ -67,7 +67,7 @@ public class WordSnapFragment extends Fragment {
         mainActivity.timerStarted();
 
 
-        timer = new CountDownTimer(mainActivity.GAME_DURATION, 1000) {
+        timer = new CountDownTimer(10000,1000){//mainActivity.GAME_DURATION, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 try {

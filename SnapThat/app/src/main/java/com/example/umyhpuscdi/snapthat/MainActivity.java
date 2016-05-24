@@ -97,7 +97,7 @@ public class MainActivity
     //Duration of game
     //120000 = 2 minuters timer. Andra parametern (1000) gör så att det dröjer 1 sekund mellan varje onTick.
     //10000 = 10 sek for testing
-    public final static int GAME_DURATION = 120000;
+    public final static int GAME_DURATION = 15000;
 
     // Are we currently resolving a connection failure?
     private boolean resolvingConnectionFailure = false;
