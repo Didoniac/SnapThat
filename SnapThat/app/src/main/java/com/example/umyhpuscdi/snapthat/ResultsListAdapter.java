@@ -68,7 +68,7 @@ public class ResultsListAdapter extends ArrayAdapter<PlayerData> {
                 the others (in mainactivity). If this listitem shows a different player, this should
                 be able to find that bitmap and show it here.
              */
-                    Bitmap bitmap = null;
+                    Bitmap bitmap;
                     //TODO I don't get why we need to do this check!? Should be stored in the same place by now. //Didrik
                     // if this listitem is current player
                     if (playerData.getPlayerID().equals(Games.Players.getCurrentPlayerId(mainActivity.googleApiClient))) {
@@ -79,9 +79,10 @@ public class ResultsListAdapter extends ArrayAdapter<PlayerData> {
                     if (bitmap != null) {
                         ImageView photoImageView = (ImageView) v.findViewById(R.id.results_listitem_photo_imageview);
                         photoImageView.setImageBitmap(bitmap);
+                        bitmap = null;
                     }
 
-                    Bitmap correctBitmap = null;
+                    Bitmap correctBitmap;
                     if (thing.isUploadedAndChecked()) {
                         if (thing.isAccepted()) {
                             correctBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.green_check);
@@ -95,6 +96,7 @@ public class ResultsListAdapter extends ArrayAdapter<PlayerData> {
                     if (correctBitmap != null) {
                         ImageView correctImageView = (ImageView) v.findViewById(R.id.results_listitem_correctness_imageview);
                         correctImageView.setImageBitmap(bitmap);
+                        correctBitmap = null;
                     }
                 }
             }

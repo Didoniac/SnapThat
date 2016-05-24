@@ -47,6 +47,7 @@ public class ImageSerializable {
             byte[] byteArray = stream.toByteArray();
             this.bitmapByteArrayString = Base64.encodeToString(byteArray, Base64.DEFAULT);
         }
+        bitmap = null;
     }
 
     public int getIndex() {

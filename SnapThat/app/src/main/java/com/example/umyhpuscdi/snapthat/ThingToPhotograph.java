@@ -98,6 +98,7 @@ public class ThingToPhotograph{
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        bitmap = null;
     }
 
     public boolean isPhotographed() {
