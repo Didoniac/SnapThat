@@ -30,4 +30,7 @@
     <string name="ai_best_guess">AI best guess:</string>
     <string name="sign_in">Sign in</string>
     <string name="sign_out">Sign out</string>
+    <string name="private_game">Private game</string>
+    <string name="quick_game2">Quick game</string>
+    <string name="new_game">New game</string>
 </resources>

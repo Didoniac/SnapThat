@@ -91,6 +91,10 @@ public class MainActivity
     // request code (can be any number, as long as it's unique)
     private final static int RC_INVITATION_INBOX = 10001;
 
+    //Add 1 to quick game when patching game to users.
+    protected final static int VARIANT_QUICK_GAME = 1;
+    protected final static int VARIANT_INVITE_GAME = 0;
+
     // at least 2 players required for our game
     protected final static int MIN_PLAYERS = 2;
     private final static int MAX_PLAYERS = 4;
@@ -216,6 +220,7 @@ public class MainActivity
 
             // create the room and specify a variant if appropriate
             RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder();
+            roomConfigBuilder.setVariant(VARIANT_INVITE_GAME);
             roomConfigBuilder.addPlayersToInvite(invitees);
             if (autoMatchCriteria != null) {
                 roomConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
@@ -250,9 +255,10 @@ public class MainActivity
 
             // accept it!
             if (invitation != null) {
-                roomConfig = makeBasicRoomConfigBuilder()
-                        .setInvitationIdToAccept(invitation.getInvitationId())
-                        .build();
+                RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder()
+                        .setInvitationIdToAccept(invitation.getInvitationId());
+                roomConfigBuilder.setVariant(VARIANT_INVITE_GAME);
+                roomConfig = roomConfigBuilder.build();
             } else {
                 //Invitation doesn't exist
                 return;
@@ -314,6 +320,7 @@ public class MainActivity
                 // accept invitation
                 RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder();
                 roomConfigBuilder.setInvitationIdToAccept(inv.getInvitationId());
+                roomConfigBuilder.setVariant(VARIANT_INVITE_GAME);
                 Games.RealTimeMultiplayer.join(googleApiClient, roomConfigBuilder.build());
 
                 // prevent screen from sleeping during handshake
@@ -363,10 +370,13 @@ public class MainActivity
     @Override
     public void onRoomCreated(int statusCode, Room room) {
         if (statusCode == GamesStatusCodes.STATUS_OK) {
-
             this.room = room;
             if (!playerDatas.contains(playerData)) {
                 playerDatas.add(0,playerData);
+            }
+
+            if (newGameMenuFragment != null) {
+                newGameMenuFragment.setGameTypeText();
             }
 
         } else {
@@ -515,6 +525,7 @@ public class MainActivity
         // build the room config:
         RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder();
         roomConfigBuilder.setAutoMatchCriteria(am);
+        roomConfigBuilder.setVariant(VARIANT_QUICK_GAME);
         roomConfig = roomConfigBuilder.build();
 
         // create room:
@@ -793,7 +804,6 @@ public class MainActivity
     @Override
     public void onDisconnectedFromRoom(Room room) {
         // show error message and return to main screen
-        Toast.makeText(MainActivity.this, "You got disconnected.", Toast.LENGTH_SHORT).show();
         onBackPressed();
 
         // leave the room
@@ -803,23 +813,17 @@ public class MainActivity
     @Override
     public void onPeersConnected(Room room, List<String> participantIds) {
         Participant participant;
-        String stringToDisplay = "Players have connected:";
         for (int i = 0; i < participantIds.size(); i++) {
             participant = room.getParticipant(participantIds.get(i));
-            stringToDisplay += "\n" + participant.getDisplayName();
         }
-        Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onPeersDisconnected(Room room, List<String> participantIds) {
         Participant participant;
-        String stringToDisplay = "Players have disconnected:";
         for (int i = 0; i < participantIds.size(); i++) {
             participant = room.getParticipant(participantIds.get(i));
-            stringToDisplay += "\n" + participant.getDisplayName();
         }
-        Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
 
         if (shouldCancelGame(room)) {
             nullifyFragments();

@@ -108,7 +108,6 @@ public class VictoryFragment extends Fragment {
                         playerData.setReady(false);
                     }
                 }
-
                 mainActivity.readyUpListViewAdapter.notifyDataSetChanged();
             }
         });
