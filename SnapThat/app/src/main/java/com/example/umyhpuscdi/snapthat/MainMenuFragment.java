@@ -142,8 +142,12 @@ public class MainMenuFragment extends Fragment {
         if(mainActivity.isSignedIn()) {
             signedInOrOutTextView.setText(getString(R.string.signed_in));
             setGooglePlayConnected(true);
+            signInButton.setVisibility(View.GONE);
+            signOutButton.setVisibility(View.VISIBLE);
         } else {
             signedInOrOutTextView.setText(getString(R.string.signed_out));
+            signInButton.setVisibility(View.VISIBLE);
+            signOutButton.setVisibility(View.GONE);
             setGooglePlayConnected(false);
         }
     }

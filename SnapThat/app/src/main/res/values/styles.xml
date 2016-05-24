@@ -10,6 +10,11 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:textAppearance">@style/textAppearance</item>
+    </style>
+
+    <style name="textAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/textColor</item>
     </style>
 
     <style name="actionBarStyle" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
@@ -23,10 +28,10 @@
         <item name="background">@drawable/bg_button</item>
         <item name="android:minWidth">@dimen/button_minWidth</item>
         <item name="android:padding">@dimen/button_internal_padding</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/textColor</item>
     </style>
 
     <style name="titleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/textColor</item>
     </style>
 </resources>
