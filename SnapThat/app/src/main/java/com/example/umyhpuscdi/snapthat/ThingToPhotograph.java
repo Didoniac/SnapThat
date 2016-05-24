@@ -27,13 +27,15 @@ import java.util.Calendar;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ThingToPhotograph{
 
+    public static final String UNCHECKED_VALUE = "unchecked";
+
     private static final String X_MASHAPE_KEY = "J5ykIANsTimshEs1KFCqdavnWsDPp1vY2ILjsn26bsA9ElIZJw";
 
     private String mSearchTerm;
     private String mTitle;
     private boolean photographed = false;
     private boolean uploadedAndChecked = false;
-    private String bestGuess = "unchecked";
+    private String bestGuess = UNCHECKED_VALUE;
     private boolean uploading = false;
     private boolean accepted = false;
     private PostDownloadAPIGuessExecuteListener mListener;

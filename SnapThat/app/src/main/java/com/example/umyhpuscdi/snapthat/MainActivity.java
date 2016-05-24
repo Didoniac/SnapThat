@@ -46,7 +46,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -611,6 +610,11 @@ public class MainActivity
                                         imageSerializable.getBestGuess()));
                         Collections.sort(playerWhoSentTheData.getThingsToPhotograph(),new ThingToPhotographIndexComparator());
                     }
+                    if(haveIReceivedAllPhotoDataFromEveryone()){
+                        if(resultFragment != null){
+                            resultFragment.enableScoreButton();
+                        }
+                    }
                 } else if (jsonObject.get("contentType").equals("ReadySerializable")) {
                     JSONObject readySerializableJsonObject
                             = new JSONObject((String)jsonObject.get("contents"));
@@ -1035,5 +1039,103 @@ public class MainActivity
                super.onBackPressed();
            }
        }
+    }
+
+    public boolean haveIReceivedAllPhotoDataFromEveryone() {
+        ArrayList<Participant> participants = room.getParticipants();
+        
+        //Checking if all players have sent some bitmap here, if not, return false
+        if(!hasEveryoneSentAnyBitmap(participants)){
+            return false;
+        }
+        if(!hasEveryoneSentPlayerMetaData(participants)){
+            return false;
+        }
+        if(!hasEveryoneSentAllGameData(participants)){
+            return false;
+        }
+        return true;
+    }
+
+    private boolean hasEveryoneSentAllGameData(ArrayList<Participant> participants) {
+        for (PlayerMetaDataSerializable pmds : playerMetaDatas) {
+            PlayerData pd = findPlayerDataFromId(playerDatas, pmds.getParticipantId());
+            if(pd == null){
+                //This should never happen
+                return false;
+            }
+            ArrayList<ThingToPhotograph> localThings = pd.getThingsToPhotograph();
+            for (ThingToPhotograph remoteThing : pmds.getThingToPhotographs()) {
+                if (remoteThing.isPhotographed()){
+                    int index = remoteThing.getIndex();
+                    if(localThings.get(index).getBestGuess().equals(ThingToPhotograph.UNCHECKED_VALUE)){
+                        //If any photo-game-data is photographed and not yet sent here, return false
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private PlayerData findPlayerDataFromId(ArrayList<PlayerData> playerDatas, String participantId) {
+        for (PlayerData pd : playerDatas) {
+            if(pd.getPlayerID().equals(participantId)){
+                return pd;
+            }
+        }
+        return null;
+    }
+
+    private boolean hasEveryoneSentPlayerMetaData(ArrayList<Participant> participants) {
+        ArrayList<String> roomIds = new ArrayList<>();
+        for (Participant p : participants) {
+            roomIds.add(p.getParticipantId());
+        }
+        ArrayList<String> PlayerMetaDataIds = new ArrayList<>();
+        for (PlayerMetaDataSerializable pmds : playerMetaDatas) {
+            PlayerMetaDataIds.add(pmds.getParticipantId());
+        }
+        if(doesStringArrayListContainOtherList(PlayerMetaDataIds, roomIds)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private boolean hasEveryoneSentAnyBitmap(ArrayList<Participant> participants) {
+        ArrayList<String> roomIds = new ArrayList<>();
+        for (Participant p : participants) {
+            roomIds.add(p.getParticipantId());
+        }
+        ArrayList<String> playerDataIds = new ArrayList<>();
+        for (PlayerData pd : playerDatas) {
+            playerDataIds.add(pd.getPlayerID());
+        }
+        if(doesStringArrayListContainOtherList(playerDataIds, roomIds)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /*
+    returns true if a contains all elements of b
+     */
+    public static boolean doesStringArrayListContainOtherList(ArrayList<String> a, ArrayList<String> b){
+        Boolean found = false;
+        for (String bs : b) {
+            for (String as : a) {
+                if (bs.equals(as)) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                return false;
+            }
+            found = false;
+        }
+        return true;
     }
 }

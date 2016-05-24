@@ -2,7 +2,6 @@ package com.example.umyhpuscdi.snapthat;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,10 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -104,14 +99,15 @@ public class ResultFragment extends Fragment {
 
             }
         });
-        /*
-        TODO
-        if 'photoes are being uploaded'
-        disable scorebutton
-        else
-        enable it
-         */
+
+        if(mainActivity.haveIReceivedAllPhotoDataFromEveryone()){
+            scoreButton.setEnabled(true);
+        }
 
         return rootView;
+    }
+
+    public void enableScoreButton() {
+        scoreButton.setEnabled(true);
     }
 }
