@@ -95,16 +95,16 @@ public class MainActivity
     private final static int RC_INVITATION_INBOX = 10001;
 
     //Add 1 to quick game when patching game to users.
-    protected final static int VARIANT_QUICK_GAME = 1;
-    protected final static int VARIANT_INVITE_GAME = 0;
+    protected final static int VARIANT_QUICK_GAME = 2;
+    protected final static int VARIANT_INVITE_GAME = 1;
 
     // at least 2 players required for our game
     protected final static int MIN_PLAYERS = 2;
     private final static int MAX_PLAYERS = 4;
 
     //Duration of game
-    //120000 = 2 minuters timer. Andra parametern (1000) gör så att det dröjer 1 sekund mellan varje onTick.
-    //10000 = 10 sek for testing
+    //120000 = 2 minuters timer
+    //10000 = 10 sek for testing t.ex
     public final static int GAME_DURATION = 50000;
 
     // Are we currently resolving a connection failure?
@@ -962,8 +962,6 @@ public class MainActivity
 
         Gson gson = new Gson();
         String imageSerializableString = gson.toJson(imageSerializable);
-        imageSerializable.setBitmapByteArrayString(null);
-        imageSerializable = null;
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("contentType","ImageSerializable");

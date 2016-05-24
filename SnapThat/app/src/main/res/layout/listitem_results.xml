@@ -30,14 +30,12 @@
         android:layout_width="100dp"
         android:layout_height="100dp">
         <ImageView
-            android:background="@drawable/loading"
             android:id="@+id/results_listitem_photo_imageview"
             android:layout_width="100dp"
             android:layout_height="100dp" />
         <ImageView
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/loading_circle"
             android:id="@+id/results_listitem_correctness_imageview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

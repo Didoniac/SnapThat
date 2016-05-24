@@ -114,7 +114,7 @@ public class ResultsListAdapter extends ArrayAdapter<PlayerData> {
         usernameTextView.setText(userName);
         guessTextView.setText(guessText);
         photoImageView.setImageBitmap(photoBitmap);
-        photoBitmap = null;
+        //photoBitmap = null; TODO find out if this helps memory
         correctImageView.setImageBitmap(correctBitmap);
 
         return v;
