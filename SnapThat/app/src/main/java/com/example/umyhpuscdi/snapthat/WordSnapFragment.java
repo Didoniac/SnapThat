@@ -68,7 +68,7 @@ public class WordSnapFragment extends Fragment {
 
         //120000 = 2 minuters timer. Andra parametern (1000) gör så att det dröjer 1 sekund mellan varje onTick.
         //10000 = 10 sek for testing
-        timer = new CountDownTimer(10000, 1000) {
+        timer = new CountDownTimer(120000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 try {
