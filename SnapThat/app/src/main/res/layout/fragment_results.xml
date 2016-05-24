@@ -25,6 +25,7 @@
         <Button
             android:id="@+id/results_prev_button"
             android:text="@string/results_previous_button"
+            android:minWidth="75dp"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_width="wrap_content"
@@ -32,6 +33,7 @@
         <Button
             android:id="@+id/results_score_button"
             android:text="@string/results_score_button"
+            android:minWidth="75dp"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_width="wrap_content"
@@ -39,6 +41,7 @@
         <Button
             android:id="@+id/results_next_button"
             android:text="@string/results_next_button"
+            android:minWidth="75dp"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_width="wrap_content"

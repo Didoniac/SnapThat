@@ -5,12 +5,17 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.google.android.gms.games.Games;
+import com.google.android.gms.games.multiplayer.Participant;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -82,13 +87,29 @@ public class VictoryFragment extends Fragment {
                 fragmentTransaction.replace(R.id.mainLayout, mainActivity.newGameMenuFragment).commit();
                 mainActivity.clearThingsToPhotographFiles();
 
-                for(int i=0; mainActivity.getPlayerDatas().size()>i;i++){
-                    PlayerData playerdata = mainActivity.getPlayerDatas().get(i);
-                    playerdata.getThingsToPhotograph().clear();
-                    playerdata.setScore(0);
-                    playerdata.setNumberOfPhotos(0);
-                    playerdata.setReady(false);
+                if (mainActivity.getPlayerDatas().size() == 0) {
+                    ArrayList<Participant> participants = mainActivity.room.getParticipants();
+                    PlayerData playerData;
+                    for (int i = 0; i < participants.size(); i++) {
+                        //If current player
+                        if (participants.get(i).getParticipantId().equals(
+                                mainActivity.room.getParticipantId(Games.Players.getCurrentPlayerId(mainActivity.googleApiClient)))) {
+                            mainActivity.getPlayerDatas().add(mainActivity.playerData);
+                            playerData = mainActivity.playerData;
+
+                        //If someone else
+                        } else {
+                            playerData = new PlayerData(participants.get(i).getParticipantId(),participants.get(i).getDisplayName());
+                            mainActivity.getPlayerDatas().add(playerData);
+                        }
+                        playerData.getThingsToPhotograph().clear();
+                        playerData.setScore(0);
+                        playerData.setNumberOfPhotos(0);
+                        playerData.setReady(false);
+                    }
                 }
+
+                mainActivity.readyUpListViewAdapter.notifyDataSetChanged();
             }
         });
 

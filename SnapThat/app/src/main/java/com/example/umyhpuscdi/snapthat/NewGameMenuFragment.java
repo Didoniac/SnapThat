@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -47,6 +48,10 @@ public class NewGameMenuFragment extends Fragment {
         mainActivity.readyUpListViewAdapter
                 = new ReadyUpListAdapter(mainActivity, R.layout.readyup_list_item, mainActivity.getPlayerDatas(), mainActivity);
         readyUpListView.setAdapter(mainActivity.readyUpListViewAdapter);
+
+        if (mainActivity.room != null && mainActivity.room.getStatus() == Room.ROOM_STATUS_ACTIVE) {
+            infoMessageTextView.setText(R.string.connected_to_room);
+        }
 
         chooseThemeButton.setOnClickListener(new View.OnClickListener() {
             @Override
