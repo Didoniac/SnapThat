@@ -9,6 +9,18 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="25sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:text="@string/new_game"
+        android:id="@+id/gameTypeTextView"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_below="@id/gameTypeTextView"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:text="@string/theme"
@@ -17,6 +29,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/themeTextView"
         android:text="@string/default_theme"
@@ -30,7 +43,8 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="@string/username"/>
+        android:text="@string/username"
+        android:id="@+id/usernameTextView"/>
 
     <TextView
         android:layout_width="wrap_content"

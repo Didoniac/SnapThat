@@ -2,7 +2,7 @@
     <string name="app_name">SnapThat</string>
     <string name="quick_game">Quick game\n(2 players)</string>
     <string name="quit">Quit</string>
-    <string name="signed_in">Signed in.</string>
+    <string name="signed_in">Signed in</string>
     <string name="signed_out">Signed out.</string>
     <string name="invite_players">Invite players</string>
     <string name="show_invitations">Show Invitations</string>
@@ -26,4 +26,11 @@
     <string name="connecting_to_room">Connecting.</string>
     <string name="connected_to_room">Connected.</string>
     <string name="waiting_for_players">Waiting for players.</string>
+    <string name="take_a_photo_of">Take a photo of:</string>
+    <string name="ai_best_guess">AI best guess:</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_out">Sign out</string>
+    <string name="private_game">Private game</string>
+    <string name="quick_game2">Quick game</string>
+    <string name="new_game">New game</string>
 </resources>

@@ -49,7 +49,7 @@ public class CameraHandler {
         }
     }
 
-    private static Uri getOutputPictureFileUri(String directoryInPictures, Context context) {
+    protected static Uri getOutputPictureFileUri(String directoryInPictures, Context context) {
         return Uri.fromFile(getOutputPictureFile(directoryInPictures, context));
     }
 

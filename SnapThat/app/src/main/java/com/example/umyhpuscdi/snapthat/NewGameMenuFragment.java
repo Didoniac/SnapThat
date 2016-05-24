@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -34,10 +35,13 @@ public class NewGameMenuFragment extends Fragment {
     private ListView readyUpListView;
     private boolean beingDestroyed = false;
     protected TextView infoMessageTextView;
+    protected TextView gameTypeTextView;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle bundle) {
         View rootView = layoutInflater.inflate(R.layout.newgamemenufragment_layout, container, false);
         mainActivity = (MainActivity) getActivity();
+
+        gameTypeTextView = (TextView) rootView.findViewById(R.id.gameTypeTextView);
 
         chooseThemeButton = (Button) rootView.findViewById(R.id.chooseThemeButton);
         goButton = (Button) rootView.findViewById(R.id.goButton);
@@ -47,6 +51,12 @@ public class NewGameMenuFragment extends Fragment {
         mainActivity.readyUpListViewAdapter
                 = new ReadyUpListAdapter(mainActivity, R.layout.readyup_list_item, mainActivity.getPlayerDatas(), mainActivity);
         readyUpListView.setAdapter(mainActivity.readyUpListViewAdapter);
+
+        if (mainActivity.room != null
+                && mainActivity.room.getStatus() == Room.ROOM_STATUS_ACTIVE
+                && mainActivity.getPlayerDatas().size() > 0) {
+            infoMessageTextView.setText(R.string.connected_to_room);
+        }
 
         chooseThemeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,5 +130,17 @@ public class NewGameMenuFragment extends Fragment {
 
     public boolean isBeingDestroyed() {
         return beingDestroyed;
+    }
+
+    public void setBeingDestroyed(boolean beingDestroyed) {
+        this.beingDestroyed = beingDestroyed;
+    }
+
+    public void setGameTypeText() {
+        if (mainActivity.room.getVariant() == MainActivity.VARIANT_QUICK_GAME) {
+            gameTypeTextView.setText(R.string.quick_game2);
+        } else if (mainActivity.room.getVariant() == MainActivity.VARIANT_INVITE_GAME) {
+            gameTypeTextView.setText(R.string.private_game);
+        }
     }
 }

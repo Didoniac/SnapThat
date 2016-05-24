@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:orientation="vertical"
+        android:layout_centerVertical="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <TextView
-            android:text="test"
+            android:text="@string/username"
             android:id="@+id/results_listitem_username_textview"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <TextView
-            android:text="test"
+            android:text="@string/ai_best_guess"
             android:id="@+id/results_listitem_bestGuess_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -21,6 +25,8 @@
 
     <RelativeLayout
         android:orientation="vertical"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_width="100dp"
         android:layout_height="100dp">
         <ImageView
@@ -38,4 +44,4 @@
             android:layout_alignParentRight="true" />
     </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>

@@ -3,7 +3,7 @@
 
     <item android:drawable="@color/colorPrimary" android:state_selected="true"/>
     <item android:drawable="@color/colorPrimaryDark" android:state_pressed="true"/>
-    <item android:drawable="@color/grey" android:state_enabled="false" />
+    <item android:drawable="@color/greyed_out" android:state_enabled="false" />
     <item android:drawable="@color/colorPrimary"/>
 
 </selector>

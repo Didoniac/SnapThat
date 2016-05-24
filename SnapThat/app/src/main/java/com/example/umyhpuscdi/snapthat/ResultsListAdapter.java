@@ -114,6 +114,7 @@ public class ResultsListAdapter extends ArrayAdapter<PlayerData> {
         usernameTextView.setText(userName);
         guessTextView.setText(guessText);
         photoImageView.setImageBitmap(photoBitmap);
+        photoBitmap = null;
         correctImageView.setImageBitmap(correctBitmap);
 
         return v;

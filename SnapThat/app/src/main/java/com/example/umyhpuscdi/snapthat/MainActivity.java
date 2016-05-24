@@ -1,5 +1,6 @@
 package com.example.umyhpuscdi.snapthat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -10,9 +11,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -64,6 +67,7 @@ public class MainActivity
         ThingToPhotograph.PostDownloadAPIGuessExecuteListener{
 
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 0;
+    private static final int MY_PERMISSIONS_REQUEST_STORAGE = 1;
     private MainMenuFragment mainMenuFragment;
     private ChooseThemeFragment chooseThemeFragment;
     private WordSnapFragment wordSnapFragment;
@@ -90,6 +94,10 @@ public class MainActivity
     // request code (can be any number, as long as it's unique)
     private final static int RC_INVITATION_INBOX = 10001;
 
+    //Add 1 to quick game when patching game to users.
+    protected final static int VARIANT_QUICK_GAME = 1;
+    protected final static int VARIANT_INVITE_GAME = 0;
+
     // at least 2 players required for our game
     protected final static int MIN_PLAYERS = 2;
     private final static int MAX_PLAYERS = 4;
@@ -104,6 +112,7 @@ public class MainActivity
 
     // are we already playing?
     private boolean playing = false;
+    private boolean returningToMainMenu = false;
 
     //The user
     protected PlayerData playerData;
@@ -133,18 +142,30 @@ public class MainActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        assert getSupportActionBar() != null;
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
         createMainMenu();
         createGoogleAPIClient();
     }
 
-    private void cameraPermission() {
+    private void askForPermissions() {
         int permissionCheck = ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA);
+
         if(permissionCheck != PackageManager.PERMISSION_GRANTED){
             //ask for permission
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
-        }else {
+        } else {
             mainMenuFragment.setCameraPermissionGranted(true);
+        }
+
+        int permissionCheck2 = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permissionCheck2 != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_STORAGE);
+        } else {
+            mainMenuFragment.setStoragePermissionGranted(true);
         }
     }
 
@@ -156,11 +177,11 @@ public class MainActivity
     protected void onStart() {
         super.onStart();
 
-        cameraPermission();
+        askForPermissions();
 
         if (!googleApiClient.isConnected()) {
             Log.d("TAG", "onStart(): connecting");
-        googleApiClient.connect();
+            googleApiClient.connect();
         }
     }
 
@@ -211,6 +232,7 @@ public class MainActivity
 
             // create the room and specify a variant if appropriate
             RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder();
+            roomConfigBuilder.setVariant(VARIANT_INVITE_GAME);
             roomConfigBuilder.addPlayersToInvite(invitees);
             if (autoMatchCriteria != null) {
                 roomConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
@@ -245,9 +267,10 @@ public class MainActivity
 
             // accept it!
             if (invitation != null) {
-                roomConfig = makeBasicRoomConfigBuilder()
-                        .setInvitationIdToAccept(invitation.getInvitationId())
-                        .build();
+                RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder()
+                        .setInvitationIdToAccept(invitation.getInvitationId());
+                roomConfigBuilder.setVariant(VARIANT_INVITE_GAME);
+                roomConfig = roomConfigBuilder.build();
             } else {
                 //Invitation doesn't exist
                 return;
@@ -316,13 +339,14 @@ public class MainActivity
         // Set the greeting appropriately on main menu
         Player player = Games.Players.getCurrentPlayer(googleApiClient);
         this.playerData = new PlayerData(player.getPlayerId(),player.getDisplayName());
-        String displayName;
 
-        displayName = player.getDisplayName();
-
-        Toast.makeText(MainActivity.this, "Welcome " + displayName + "!", Toast.LENGTH_SHORT).show();
-        mainMenuFragment.setGreeting(getString(R.string.signed_in));
-        mainMenuFragment.setGooglePlayConnected(true);
+        if (mainMenuFragment != null) {
+            String greeting = getString(R.string.signed_in) + " as " + player.getDisplayName() + ".";
+            mainMenuFragment.setGreeting(greeting);
+            mainMenuFragment.setGooglePlayConnected(true);
+            mainMenuFragment.signInButton.setVisibility(View.GONE);
+            mainMenuFragment.signOutButton.setVisibility(View.VISIBLE);
+        }
 
         //If player already accepted invite
         if (connectionHint != null) {
@@ -333,6 +357,7 @@ public class MainActivity
                 // accept invitation
                 RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder();
                 roomConfigBuilder.setInvitationIdToAccept(inv.getInvitationId());
+                roomConfigBuilder.setVariant(VARIANT_INVITE_GAME);
                 Games.RealTimeMultiplayer.join(googleApiClient, roomConfigBuilder.build());
 
                 // prevent screen from sleeping during handshake
@@ -382,18 +407,23 @@ public class MainActivity
     @Override
     public void onRoomCreated(int statusCode, Room room) {
         if (statusCode == GamesStatusCodes.STATUS_OK) {
-
             this.room = room;
             if (!playerDatas.contains(playerData)) {
                 playerDatas.add(0,playerData);
             }
 
+            if (newGameMenuFragment != null) {
+                newGameMenuFragment.setGameTypeText();
+            }
+
+        } else if (statusCode == GamesStatusCodes.STATUS_REAL_TIME_CONNECTION_FAILED) {
+            googleApiClient.reconnect();
         } else {
             // let screen go to sleep
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
             //show error message, return to main screen.
-            Toast.makeText(MainActivity.this, "Error in onRoomCreated!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Error in onRoomCreated! (" +statusCode+")", Toast.LENGTH_SHORT).show();
             getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
@@ -475,7 +505,9 @@ public class MainActivity
         // remove the flag that keeps the screen on
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (newGameMenuFragment != null
-                && !newGameMenuFragment.isBeingDestroyed()) {
+                && !newGameMenuFragment.isBeingDestroyed()
+                && !returningToMainMenu) {
+            returningToMainMenu = false;
             playerDatas.clear();
             getSupportFragmentManager().popBackStack();
             Toast.makeText(MainActivity.this, "Starting quick game.", Toast.LENGTH_SHORT).show();
@@ -532,6 +564,7 @@ public class MainActivity
         // build the room config:
         RoomConfig.Builder roomConfigBuilder = makeBasicRoomConfigBuilder();
         roomConfigBuilder.setAutoMatchCriteria(am);
+        roomConfigBuilder.setVariant(VARIANT_QUICK_GAME);
         roomConfig = roomConfigBuilder.build();
 
         // create room:
@@ -570,132 +603,127 @@ public class MainActivity
 
         Object receivedObject = null;
 
-            String receivedString = new String(b);
-            try {
-                JSONObject jsonObject = new JSONObject(receivedString);
-                if (jsonObject.get("contentType").equals(startGameMessage)) {
-                    ArrayList<ThingToPhotograph> newThingsToPhotograph = new ArrayList<>();
-                    JSONArray jsonArray = (JSONArray) jsonObject.get("contents");
-                    String tempString;
-                    ThingToPhotograph tempThing;
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        tempString = (String) jsonArray.get(i);
-                        tempThing = objectMapper.readValue(tempString,ThingToPhotograph.class);
-                        tempThing.setmListener(this);
-                        newThingsToPhotograph.add(tempThing);
-                    }
+        String receivedString = new String(b);
+        try {
+            JSONObject jsonObject = new JSONObject(receivedString);
+            if (jsonObject.get("contentType").equals(startGameMessage)) {
+                ArrayList<ThingToPhotograph> newThingsToPhotograph = new ArrayList<>();
+                JSONArray jsonArray = (JSONArray) jsonObject.get("contents");
+                String tempString;
+                ThingToPhotograph tempThing;
+                ObjectMapper objectMapper = new ObjectMapper();
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    tempString = (String) jsonArray.get(i);
+                    tempThing = objectMapper.readValue(tempString,ThingToPhotograph.class);
+                    tempThing.setmListener(this);
+                    newThingsToPhotograph.add(tempThing);
+                }
 
-                    playerData.setThingsToPhotograph(newThingsToPhotograph);
-                    WordSnapFragment wordSnapFragment = new WordSnapFragment();
-                    setWordSnapFragment(wordSnapFragment);
-                    FragmentTransaction fragmentTransaction =
-                            getSupportFragmentManager().beginTransaction();
-                    //fragmentTransaction.addToBackStack(null);
-                    fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
-                } else if (jsonObject.get("contentType").equals("ImageSerializable")) {
-                    JSONObject imageSerializableJsonObject
-                            = new JSONObject((String)jsonObject.get("contents"));
-                    Gson gson = new Gson();
-                    ImageSerializable imageSerializable
-                            = gson.fromJson(imageSerializableJsonObject.toString(),ImageSerializable.class);
-                    //Loop through the list of players to find who sent the object.
-                    PlayerData playerWhoSentTheData = null;
-                    for (int i=0; i<playerDatas.size(); i++) {
-                        if (playerDatas.get(i).getPlayerID().equals(imageSerializable.getPlayerId())) {
-                            playerWhoSentTheData = playerDatas.get(i);
-                            break;
-                        }
-                    }
-                    if (playerWhoSentTheData != null) {
-                        //add it at the end, then sort by indexes.
-                        playerWhoSentTheData.getThingsToPhotograph().add(
-                                new ThingToPhotograph(
-                                        imageSerializable.getBitmapByteArrayString(),
-                                        imageSerializable.getIndex(),
-                                        imageSerializable.isAccepted(),
-                                        imageSerializable.getBestGuess()));
-                        Collections.sort(playerWhoSentTheData.getThingsToPhotograph(),new ThingToPhotographIndexComparator());
-                    }
-                    if(haveIReceivedAllPhotoDataFromEveryone()){
-                        if(resultFragment != null){
-                            resultFragment.enableScoreButton();
-                        }
-                    }
-                } else if (jsonObject.get("contentType").equals("ReadySerializable")) {
-                    JSONObject readySerializableJsonObject
-                            = new JSONObject((String)jsonObject.get("contents"));
-                    Gson gson = new Gson();
-                    ReadySerializable readySerializable
-                            = gson.fromJson(readySerializableJsonObject.toString(),ReadySerializable.class);
-                    //Loop through the list of players to find who sent the object.
-                    PlayerData playerWhoSentTheData = null;
-                    for (int i=0; i<playerDatas.size(); i++) {
-                        if (playerDatas.get(i).getPlayerID().equals(readySerializable.getPlayerID())) {
-                            playerWhoSentTheData = playerDatas.get(i);
-                            playerWhoSentTheData.setReady(readySerializable.isReady());
-                            readyUpListViewAdapter.notifyDataSetChanged();
-                            break;
-                        }
-                    }
-                } else if(jsonObject.get("contentType").equals("PlayerMetaDataSerializable")){
-
-                    String playerMetaDataJsonString = (String) jsonObject.get("contents");
-
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    PlayerMetaDataSerializable playerMetaDataSerializable =
-                            objectMapper.readValue(playerMetaDataJsonString, PlayerMetaDataSerializable.class);
-
-                    playerMetaDatas.add(playerMetaDataSerializable);
-                    if(resultFragment != null) {
-                        if(resultsListViewAdapter != null){
-                            resultsListViewAdapter.notifyDataSetChanged();
-                        }
+                playerData.setThingsToPhotograph(newThingsToPhotograph);
+                WordSnapFragment wordSnapFragment = new WordSnapFragment();
+                setWordSnapFragment(wordSnapFragment);
+                FragmentTransaction fragmentTransaction =
+                        getSupportFragmentManager().beginTransaction();
+                //fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.replace(R.id.mainLayout, wordSnapFragment).commit();
+            } else if (jsonObject.get("contentType").equals("ImageSerializable")) {
+                JSONObject imageSerializableJsonObject
+                        = new JSONObject((String)jsonObject.get("contents"));
+                Gson gson = new Gson();
+                ImageSerializable imageSerializable
+                        = gson.fromJson(imageSerializableJsonObject.toString(),ImageSerializable.class);
+                //Loop through the list of players to find who sent the object.
+                PlayerData playerWhoSentTheData = null;
+                for (int i=0; i<playerDatas.size(); i++) {
+                    if (playerDatas.get(i).getPlayerID().equals(imageSerializable.getPlayerId())) {
+                        playerWhoSentTheData = playerDatas.get(i);
+                        break;
                     }
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (JsonParseException e) {
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                if (playerWhoSentTheData != null) {
+                    //add it at the end, then sort by indexes.
+                    playerWhoSentTheData.getThingsToPhotograph().add(
+                            new ThingToPhotograph(
+                                    imageSerializable.getBitmapByteArrayString(),
+                                    imageSerializable.getIndex(),
+                                    imageSerializable.isAccepted(),
+                                    imageSerializable.getBestGuess()));
+                    Collections.sort(playerWhoSentTheData.getThingsToPhotograph(),new ThingToPhotographIndexComparator());
+                }
+                if(haveIReceivedAllPhotoDataFromEveryone()){
+                    if(resultFragment != null){
+                        resultFragment.enableScoreButton();
+                    }
+                }
+            } else if (jsonObject.get("contentType").equals("ReadySerializable")) {
+                JSONObject readySerializableJsonObject
+                        = new JSONObject((String)jsonObject.get("contents"));
+                Gson gson = new Gson();
+                ReadySerializable readySerializable
+                        = gson.fromJson(readySerializableJsonObject.toString(),ReadySerializable.class);
+                //Loop through the list of players to find who sent the object.
+                PlayerData playerWhoSentTheData;
+                for (int i=0; i<playerDatas.size(); i++) {
+                    if (playerDatas.get(i).getPlayerID().equals(readySerializable.getPlayerID())) {
+                        playerWhoSentTheData = playerDatas.get(i);
+                        playerWhoSentTheData.setReady(readySerializable.isReady());
+                        readyUpListViewAdapter.notifyDataSetChanged();
+                        break;
+                    }
+                }
+                if (shouldStartGame()) {
+                    newGameMenuFragment.goButton.setEnabled(true);
+                } else {
+                    newGameMenuFragment.goButton.setEnabled(false);
+                }
+            } else if(jsonObject.get("contentType").equals("PlayerMetaDataSerializable")){
+
+                String playerMetaDataJsonString = (String) jsonObject.get("contents");
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                PlayerMetaDataSerializable playerMetaDataSerializable =
+                        objectMapper.readValue(playerMetaDataJsonString, PlayerMetaDataSerializable.class);
+
+                playerMetaDatas.add(playerMetaDataSerializable);
+                if(resultFragment != null) {
+                    if(resultsListViewAdapter != null){
+                        resultsListViewAdapter.notifyDataSetChanged();
+                    }
+                }
             }
-        // process message
-    //        Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
-    //        chooseThemeFragment.setImageTest(bitmap);
-
-        /*Old testing of sending integers
-        value = byteArrayToInt(b);
-        String s = "" + value;
-        chooseThemeFragment.getAddValueButton().setText(s);
-        */
-    }
-
-    public static int byteArrayToInt(byte[] b) {
-        int value = 0;
-        for (int i = 0; i < 4; i++) {
-            int shift = (4 - 1 - i) * 8;
-            value += (b[i] & 0x000000FF) << shift;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return value;
     }
 
-    // returns whether there are enough players to start the game
-/*
-        BUGGAD OCH ONÖDIG
+    // returns whether there are enough players to start the game & everyone is ready.
 
-        public boolean shouldStartGame() {
+    public boolean shouldStartGame() {
         int connectedPlayers = 0;
         if (room != null) {
             for (Participant p : room.getParticipants()) {
                 if (p.isConnectedToRoom()) ++connectedPlayers;
             }
         }
-        return connectedPlayers >= MIN_PLAYERS;
+        boolean everyoneIsReady = true;
+        for (int i = 0; i < playerDatas.size(); i++) {
+            if (!playerDatas.get(i).isReady()) {
+                everyoneIsReady = false;
+            }
+        }
+
+        if (connectedPlayers >= MIN_PLAYERS && everyoneIsReady) {
+            return  true;
+        } else {
+            return false;
+        }
     }
-    */
 
     /**
      * Returns whether the room is in a state where the game should be canceled.
@@ -810,14 +838,12 @@ public class MainActivity
         if (!playerDatas.contains(playerData)) {
             playerDatas.add(0, playerData);
         }
-        newGameMenuFragment.goButton.setEnabled(true);
         readyUpListViewAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onDisconnectedFromRoom(Room room) {
         // show error message and return to main screen
-        Toast.makeText(MainActivity.this, "You got disconnected.", Toast.LENGTH_SHORT).show();
         onBackPressed();
 
         // leave the room
@@ -827,23 +853,17 @@ public class MainActivity
     @Override
     public void onPeersConnected(Room room, List<String> participantIds) {
         Participant participant;
-        String stringToDisplay = "Players have connected:";
         for (int i = 0; i < participantIds.size(); i++) {
             participant = room.getParticipant(participantIds.get(i));
-            stringToDisplay += "\n" + participant.getDisplayName();
         }
-        Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onPeersDisconnected(Room room, List<String> participantIds) {
         Participant participant;
-        String stringToDisplay = "Players have disconnected:";
         for (int i = 0; i < participantIds.size(); i++) {
             participant = room.getParticipant(participantIds.get(i));
-            stringToDisplay += "\n" + participant.getDisplayName();
         }
-        Toast.makeText(MainActivity.this, stringToDisplay, Toast.LENGTH_LONG).show();
 
         if (shouldCancelGame(room)) {
             nullifyFragments();
@@ -942,6 +962,8 @@ public class MainActivity
 
         Gson gson = new Gson();
         String imageSerializableString = gson.toJson(imageSerializable);
+        imageSerializable.setBitmapByteArrayString(null);
+        imageSerializable = null;
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("contentType","ImageSerializable");
@@ -983,18 +1005,26 @@ public class MainActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode){
-            case MY_PERMISSIONS_REQUEST_CAMERA: {
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            case MY_PERMISSIONS_REQUEST_CAMERA:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //Permission granted
                     mainMenuFragment.setCameraPermissionGranted(true);
-                }else {
-                    cameraPermission();
+                } else {
+                    askForPermissions();
                 }
-            }
+                break;
+            case MY_PERMISSIONS_REQUEST_STORAGE:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Permission granted
+                    mainMenuFragment.setStoragePermissionGranted(true);
+                } else {
+                    askForPermissions();
+                }
+                break;
         }
     }
 
-    private void createGoogleAPIClient() {
+    protected void createGoogleAPIClient() {
         // Create the Google API Client with access to Games
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -1036,7 +1066,8 @@ public class MainActivity
        }
        else {
            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-               playerDatas.clear();
+               clearThingsToPhotographFiles();
+               playerData.setReady(false);
                nullifyFragments();
                super.onBackPressed();
 
@@ -1130,7 +1161,7 @@ public class MainActivity
     /*
     returns true if a contains all elements of b
      */
-    public static boolean doesStringArrayListContainOtherList(ArrayList<String> a, ArrayList<String> b){
+    public static boolean doesStringArrayListContainOtherList(ArrayList<String> a, ArrayList<String> b) {
         Boolean found = false;
         for (String bs : b) {
             for (String as : a) {
@@ -1139,11 +1170,26 @@ public class MainActivity
                     break;
                 }
             }
-            if(!found){
+            if (!found) {
                 return false;
             }
             found = false;
         }
         return true;
+    }
+
+    public void clearThingsToPhotographFiles() {
+        ArrayList<ThingToPhotograph> thingToPhotographs;
+        for (int i = 0; i < playerDatas.size(); i++) {
+            thingToPhotographs = playerDatas.get(i).getThingsToPhotograph();
+            for (int j = 0; j < thingToPhotographs.size(); j++) {
+                thingToPhotographs.get(j).removeSavedImageFile();
+            }
+        }
+        playerDatas.clear();
+    }
+
+    protected void setReturningToMainMenu(boolean returningToMainMenu) {
+        this.returningToMainMenu = returningToMainMenu;
     }
 }
