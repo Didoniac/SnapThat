@@ -922,6 +922,8 @@ public class MainActivity
 
         Gson gson = new Gson();
         String imageSerializableString = gson.toJson(imageSerializable);
+        imageSerializable.setBitmapByteArrayString(null);
+        imageSerializable = null;
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("contentType","ImageSerializable");
