@@ -22,6 +22,7 @@ import com.example.umyhpuscdi.snapthat.Serializables.ImageSerializable;
 import com.example.umyhpuscdi.snapthat.Serializables.PlayerMetaDataSerializable;
 import com.example.umyhpuscdi.snapthat.Serializables.ReadySerializable;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.common.ConnectionResult;
@@ -290,8 +291,14 @@ public class MainActivity
         PlayerMetaDataSerializable playerMetaDataSerializable = new PlayerMetaDataSerializable(
                 participantId, myLocalThingsToPhotograph, playerName);
 
-        Gson gson = new Gson();
-        String playerMetaDataSerializableString = gson.toJson(playerMetaDataSerializable);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String playerMetaDataSerializableString = null;
+        try {
+            playerMetaDataSerializableString = objectMapper.writeValueAsString(playerMetaDataSerializable);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("contentType","PlayerMetaDataSerializable");
@@ -632,12 +639,13 @@ public class MainActivity
                         }
                     }
                 } else if(jsonObject.get("contentType").equals("PlayerMetaDataSerializable")){
-                    JSONObject playerMetaDataJsonObject =
-                            new JSONObject((String)jsonObject.get("contents"));
-                    Gson gson = new Gson();
+
+                    String playerMetaDataJsonString = (String) jsonObject.get("contents");
+
+                    ObjectMapper objectMapper = new ObjectMapper();
                     PlayerMetaDataSerializable playerMetaDataSerializable =
-                            gson.fromJson(playerMetaDataJsonObject.toString(),
-                                    PlayerMetaDataSerializable.class);
+                            objectMapper.readValue(playerMetaDataJsonString, PlayerMetaDataSerializable.class);
+
                     playerMetaDatas.add(playerMetaDataSerializable);
                     if(resultFragment != null) {
                         if(resultsListViewAdapter != null){
