@@ -58,14 +58,16 @@ public class VictoryFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //Disconnect from room and go to main menu
-
                 mainActivity.leave(mainActivity.googleApiClient, mainActivity, mainActivity.room.getRoomId());
 
                 mainActivity.getPlayerDatas().clear();
                 mainActivity.getPlayerDatas().add(mainActivity.playerData);
-                mainActivity.getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-
+                if (mainActivity.newGameMenuFragment != null) {
+                    mainActivity.getSupportFragmentManager().beginTransaction().remove(mainActivity.newGameMenuFragment).commit();
+                    mainActivity.newGameMenuFragment = null;
+                }
+                mainActivity.setReturningToMainMenu(true);
+                mainActivity.onBackPressed();
             }
         });
 
@@ -78,6 +80,7 @@ public class VictoryFragment extends Fragment {
                 mainActivity.newGameMenuFragment = new NewGameMenuFragment();
 
                 fragmentTransaction.replace(R.id.mainLayout, mainActivity.newGameMenuFragment).commit();
+                mainActivity.clearThingsToPhotographFiles();
 
                 for(int i=0; mainActivity.getPlayerDatas().size()>i;i++){
                     PlayerData playerdata = mainActivity.getPlayerDatas().get(i);
@@ -85,9 +88,7 @@ public class VictoryFragment extends Fragment {
                     playerdata.setScore(0);
                     playerdata.setNumberOfPhotos(0);
                     playerdata.setReady(false);
-
                 }
-
             }
         });
 

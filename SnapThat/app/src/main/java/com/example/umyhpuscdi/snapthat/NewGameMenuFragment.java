@@ -121,4 +121,8 @@ public class NewGameMenuFragment extends Fragment {
     public boolean isBeingDestroyed() {
         return beingDestroyed;
     }
+
+    public void setBeingDestroyed(boolean beingDestroyed) {
+        this.beingDestroyed = beingDestroyed;
+    }
 }

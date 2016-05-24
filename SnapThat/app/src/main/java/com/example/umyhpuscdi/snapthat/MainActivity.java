@@ -100,6 +100,7 @@ public class MainActivity
 
     // are we already playing?
     private boolean playing = false;
+    private boolean returningToMainMenu = false;
 
     //The user
     protected PlayerData playerData;
@@ -455,7 +456,9 @@ public class MainActivity
         // remove the flag that keeps the screen on
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (newGameMenuFragment != null
-                && !newGameMenuFragment.isBeingDestroyed()) {
+                && !newGameMenuFragment.isBeingDestroyed()
+                && !returningToMainMenu) {
+            returningToMainMenu = false;
             playerDatas.clear();
             getSupportFragmentManager().popBackStack();
             Toast.makeText(MainActivity.this, "Starting quick game.", Toast.LENGTH_SHORT).show();
@@ -1017,7 +1020,7 @@ public class MainActivity
        }
        else {
            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-               clearPlayerDatas();
+               clearThingsToPhotographFiles();
                playerData.setReady(false);
                nullifyFragments();
                super.onBackPressed();
@@ -1031,7 +1034,7 @@ public class MainActivity
        }
     }
 
-    private void clearPlayerDatas() {
+    public void clearThingsToPhotographFiles() {
         ArrayList<ThingToPhotograph> thingToPhotographs;
         for (int i = 0; i < playerDatas.size(); i++) {
             thingToPhotographs = playerDatas.get(i).getThingsToPhotograph();
@@ -1040,5 +1043,9 @@ public class MainActivity
             }
         }
         playerDatas.clear();
+    }
+
+    protected void setReturningToMainMenu(boolean returningToMainMenu) {
+        this.returningToMainMenu = returningToMainMenu;
     }
 }
