@@ -303,13 +303,10 @@ public class MainActivity
         // Set the greeting appropriately on main menu
         Player player = Games.Players.getCurrentPlayer(googleApiClient);
         this.playerData = new PlayerData(player.getPlayerId(),player.getDisplayName());
-        String displayName;
 
-        displayName = player.getDisplayName();
-
-        Toast.makeText(MainActivity.this, "Welcome " + displayName + "!", Toast.LENGTH_SHORT).show();
         if (mainMenuFragment != null) {
-            mainMenuFragment.setGreeting(getString(R.string.signed_in));
+            String greeting = getString(R.string.signed_in) + " as " + player.getDisplayName() + ".";
+            mainMenuFragment.setGreeting(greeting);
             mainMenuFragment.setGooglePlayConnected(true);
             mainMenuFragment.signInButton.setVisibility(View.GONE);
             mainMenuFragment.signOutButton.setVisibility(View.VISIBLE);
@@ -383,12 +380,14 @@ public class MainActivity
                 newGameMenuFragment.setGameTypeText();
             }
 
+        } else if (statusCode == GamesStatusCodes.STATUS_REAL_TIME_CONNECTION_FAILED) {
+            googleApiClient.reconnect();
         } else {
             // let screen go to sleep
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
             //show error message, return to main screen.
-            Toast.makeText(MainActivity.this, "Error in onRoomCreated!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Error in onRoomCreated! (" +statusCode+")", Toast.LENGTH_SHORT).show();
             getSupportFragmentManager().popBackStack("MainMenuFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
